@@ -438,9 +438,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1>Project <code>spreadsheet-handling</code>&#8201;&#8212;&#8201;User Guide</h1>
 <div class="details">
-<span id="revnumber">version v0.1.0b6,</span>
-<span id="revdate">2026-05-23T07:49:21+00:00</span>
-<br><span id="revremark">3b8e706</span>
+<span id="revnumber">version v0.2.0,</span>
+<span id="revdate">2026-06-03T19:44:13+00:00</span>
+<br><span id="revremark">cd66fbf</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -519,27 +519,44 @@ Each ring adds one transform pair from the <a href="#_transformation_catalog">ca
 <div class="sect4">
 <h5 id="_pipeline_yaml_structure">Pipeline YAML Structure</h5>
 <div class="paragraph">
-<p>A pipeline is a YAML list of named steps. Each step names a registered
+<p>A pipeline is a YAML list of step entries. Each entry names a registered
 transform and supplies its parameters inline:</p>
 </div>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight"><code class="language-yaml" data-lang="yaml">pipeline:
-  - name: expand_xref
-    params:
-      matrix: role_permissions
-      output: permission_rows
-      row_keys: role_id
-      drop_empty: true
-  - name: write_structured_yaml
-    params:
-      source: permission_rows
-      output_path: out/permissions.yaml</code></pre>
+  - step: expand_xref
+    matrix: role_permissions
+    output: permission_rows
+    row_keys: role_id
+    drop_empty: true</code></pre>
 </div>
 </div>
 <div class="paragraph">
 <p>Available step names, required parameters, and roundtrip guarantees are listed
 in the <a href="#_transformation_catalog">Transformation Catalog</a>.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_running_a_pipeline">Running a Pipeline</h5>
+<div class="paragraph">
+<p><code>sheets-run</code> is the primary runtime command for executing a documented
+pipeline. For an ad-hoc pipeline file like the one above, provide the steps file
+and input/output locations. The pipeline steps transform the loaded frames; the
+CLI input and output options choose how those frames are read and written:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">sheets-run --steps pipeline.yaml \
+  --in-kind yaml_dir --in-path data/input \
+  --out-kind yaml_dir --out-path build/output</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The <a href="https://github.com/StefanSchade/spreadsheet-handling-demo">spreadsheet-handling-demo repository</a> contains the full
+first-hour walkthrough with checked-in input data, pipeline files, and expected
+outputs. The user guide focuses on the configuration concepts and transform
+catalog rather than duplicating that tutorial.</p>
 </div>
 </div>
 </div>
@@ -549,9 +566,8 @@ in the <a href="#_transformation_catalog">Transformation Catalog</a>.</p>
 <h5 id="_reading_this_catalog">Reading This Catalog</h5>
 <div class="paragraph">
 <p>Step names used in pipeline YAML must match the <code>runtime_name</code> values in
-<code>pipeline_step_registry.json</code> (under
-<code>core/docs/technical_model/ch05_registries/pipeline_step_registry/</code>), which is
-the authoritative registry artifact.</p>
+<code>pipeline_step_registry.json</code> (under <code>core/registries/</code>), which is the
+authoritative registry artifact.</p>
 </div>
 <div class="sect5">
 <h6 id="_inverse_kinds">Inverse kinds</h6>
@@ -712,12 +728,11 @@ original matrix had no empty cells in the expanded columns.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml">- name: expand_xref
-  params:
-    matrix: role_permissions
-    output: permission_rows
-    row_keys: role_id
-    drop_empty: true</code></pre>
+<pre class="highlight"><code class="language-yaml" data-lang="yaml">- step: expand_xref
+  matrix: role_permissions
+  output: permission_rows
+  row_keys: role_id
+  drop_empty: true</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -786,11 +801,10 @@ original matrix had no empty cells in the expanded columns.</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml">- name: contract_xref
-  params:
-    relation: permission_rows
-    output: role_permissions
-    row_keys: role_id</code></pre>
+<pre class="highlight"><code class="language-yaml" data-lang="yaml">- step: contract_xref
+  relation: permission_rows
+  output: role_permissions
+  row_keys: role_id</code></pre>
 </div>
 </div>
 <hr>
@@ -904,14 +918,13 @@ preserved (or <code>canonical_order</code> is set on the encode side).</p>
 </div>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml">- name: decode_cell_values
-  params:
-    source: assignments
-    output: assignment_codes
-    value: codes
-    code: code
-    delimiter: ","
-    passthrough_columns: [employee_id, project_id]</code></pre>
+<pre class="highlight"><code class="language-yaml" data-lang="yaml">- step: decode_cell_values
+  source: assignments
+  output: assignment_codes
+  value: codes
+  code: code
+  delimiter: ","
+  passthrough_columns: [employee_id, project_id]</code></pre>
 </div>
 </div>
 <div class="paragraph">
@@ -1000,14 +1013,13 @@ preserved (or <code>canonical_order</code> is set on the encode side).</p>
 </table>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-yaml" data-lang="yaml">- name: encode_cell_values
-  params:
-    source: assignment_codes
-    output: assignments
-    group_by: [employee_id, project_id]
-    code: code
-    value: codes
-    delimiter: ","</code></pre>
+<pre class="highlight"><code class="language-yaml" data-lang="yaml">- step: encode_cell_values
+  source: assignment_codes
+  output: assignments
+  group_by: [employee_id, project_id]
+  code: code
+  value: codes
+  delimiter: ","</code></pre>
 </div>
 </div>
 <hr>
@@ -1082,6 +1094,17 @@ gives the step name, category, inverse kind, and purpose for quick reference.</p
 </div>
 <div class="sect5">
 <h6 id="_fk_helpers_and_lookup">FK Helpers and Lookup</h6>
+<div class="paragraph">
+<p>FK-helper primitives are policy consumers: they read the v2 relation policy
+under <code><em>meta.helper_policies.fk</code> (and derived helper provenance under
+<code>_meta.derived.sheets.*.helper_columns</code>). Either <code>configure_fk_helpers</code>
+(explicit / manual policy) or <code>infer_fk_relations</code> (heuristic policy) must
+run before <code>add_fk_helpers</code>, <code>reorder_fk_helpers</code>, <code>validate_fk_helpers</code>, and
+<code>remove_fk_helpers</code>. Missing policy is a clear error that names the producer
+step; primitives no longer infer relations from column names. The cell-level
+<code>id</em>(&lt;target&gt;)</code> convention is the wire format on roundtrip and the default
+heuristic of <code>infer_fk_relations</code>; it is no longer interpreted by primitives.</p>
+</div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
 <col style="width: 25%;">
@@ -1099,34 +1122,53 @@ gives the step name, category, inverse kind, and purpose for quick reference.</p
 </thead>
 <tbody>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>add_fk_helpers</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">primitive</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">projection-only</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Materialize FK helper columns from FK conventions and configured helper fields.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>remove_fk_helpers</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">primitive</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">projection-only</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Remove materialized FK helper columns using derived provenance or prefix fallback.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>validate_fk_helpers</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">primitive</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">validation-only</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Validate FK helper consistency without changing frames.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>reorder_fk_helpers</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">primitive</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">relation-preserving</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Move FK helper columns next to their FK column for spreadsheet readability.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>infer_fk_relations</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">configuration</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">configuration-only</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Heuristic producer: scan data frames and write v2 FK relation policy under
+  <code><em>meta.helper_policies.fk</code> with <code>produced_by.mode: naming_convention</code>
+  (currently the only mode). Use it when FK columns follow the
+  <code>id</em>(&lt;target&gt;)</code> convention.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>configure_fk_helpers</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">configuration</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">configuration-only</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Resolve FK-helper target policies and persist them as canonical metadata.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Explicit / manual producer: take per-target policy from the YAML and write
+  the v2 relation list under <code>_meta.helper_policies.fk</code> with
+  <code>produced_by.mode: explicit</code>. Use it when you want to spell relations,
+  helper fields, and <code>target_key</code> out by hand.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>add_fk_helpers</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">primitive</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">projection-only</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Materialize FK helper columns from the v2 relation policy. Requires that
+  <code>configure_fk_helpers</code> or <code>infer_fk_relations</code> ran earlier. Writes derived
+  helper provenance for later cleanup and validation.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>reorder_fk_helpers</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">primitive</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">relation-preserving</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Move FK helper columns next to their FK column using derived helper
+  provenance and the v2 relation policy. Does not consult <code>FK_PATTERN</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>validate_fk_helpers</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">primitive</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">validation-only</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Validate FK-helper consistency against the v2 relation policy and derived
+  helper provenance (no convention inference).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>remove_fk_helpers</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">primitive</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">projection-only</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Remove materialized FK helper columns using the derived provenance written
+  by <code>add_fk_helpers</code>. Frames without provenance or explicit policy are an
+  error. Recovery from externally-edited workbooks without provenance is a
+  separate opt-in concern and is not part of this step.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>add_lookup_helpers</code></p></td>
@@ -1171,7 +1213,8 @@ gives the step name, category, inverse kind, and purpose for quick reference.</p
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>validate_references</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">primitive</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">validation-only</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Validate PK, uniqueness, FK, and reference-tuple integrity rules against frame data.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Validate PK, uniqueness, FK, reference-tuple integrity, and
+  <code>no_helper_columns</code> assertion rules against frame data.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>validate_graph</code></p></td>
@@ -1223,7 +1266,11 @@ gives the step name, category, inverse kind, and purpose for quick reference.</p
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>apply_derived_column_policy</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">primitive</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">projection-only</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Drop helper/derived columns using registered <code>_meta.derived</code> provenance.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Drop helper/derived columns using registered <code>_meta.derived</code> provenance,
+  falling back to durable workbook-view helper declarations
+  (<code>_meta.sheets.&lt;frame&gt;.helper_columns</code>) for drop identity after workbook
+  reimport. Pair with <code>validate_references</code> / <code>no_helper_columns</code> when the
+  pipeline should assert that cleanup happened before writing canonical data.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1320,8 +1367,8 @@ gives the step name, category, inverse kind, and purpose for quick reference.</p
 </div>
 <div id="footer">
 <div id="footer-text">
-Version v0.1.0b6<br>
-Last updated 2026-05-23 07:48:53 UTC
+Version v0.2.0<br>
+Last updated 2026-06-03 19:43:46 UTC
 </div>
 </div>
 </body>

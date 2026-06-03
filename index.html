@@ -438,45 +438,98 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1><code>spreadsheet-handling</code>&#8201;&#8212;&#8201;Published Documentation</h1>
 <div class="details">
-<span id="revnumber">version v0.1.0b6,</span>
-<span id="revdate">2026-05-23T07:49:21+00:00</span>
-<br><span id="revremark">3b8e706</span>
+<span id="revnumber">version v0.2.0,</span>
+<span id="revdate">2026-06-03T19:44:13+00:00</span>
+<br><span id="revremark">cd66fbf</span>
 </div>
 </div>
 <div id="content">
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>This is the published documentation site for <code>spreadsheet-handling</code>. The main
-user entry point remains the
-<a href="https://github.com/StefanSchade/spreadsheet-handling-demo">spreadsheet-handling-demo repository</a>; the <a href="https://github.com/StefanSchade/spreadsheet-handling">core repository</a>
-hosts the library, framework documentation source, and release tooling.</p>
+<p>This is the published documentation site for <code>spreadsheet-handling</code>. Source
+code lives in the <a href="https://github.com/StefanSchade/spreadsheet-handling">core repository</a>; the consumer
+walkthrough lives in the <a href="https://github.com/StefanSchade/spreadsheet-handling-demo">demo repository</a>.</p>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_documentation_entry_points">Documentation Entry Points</h2>
+<h2 id="_latest_release_v0_2_0">Latest release: <code>v0.2.0</code></h2>
 <div class="sectionbody">
 <div class="ulist">
 <ul>
 <li>
-<p><a href="latest/core/">Latest core documentation</a>&#8201;&#8212;&#8201;moves with the newest released
-core tag.</p>
+<p><a href="latest/core/user-guide/">User guide</a>&#8201;&#8212;&#8201;current framework-oriented user guide.</p>
 </li>
 <li>
-<p><a href="versions/v0.1.0b6/core/">Core documentation for <code>v0.1.0b6</code></a>&#8201;&#8212;&#8201;stable snapshot for the release that generated this index page.</p>
+<p><a href="latest/core/release-notes/">Release notes</a>&#8201;&#8212;&#8201;minimal release trail for published core versions.</p>
+</li>
+<li>
+<p><a href="latest/demo/slides/product_business_slice.html">Demo visual walkthrough</a>&#8201;&#8212;&#8201;the maintained product business slice as a Reveal.js deck.</p>
 </li>
 </ul>
 </div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
 <div class="paragraph">
-<p>Older releases live under stable paths of the form <code>versions/&lt;tag&gt;/core/</code>. They
-are intentionally immutable per tag, so links from old PyPI release pages keep
-resolving to the documentation that was current at the time of that release.</p>
+<p>Installed a different release? Pick the matching version in <strong>Browse by
+version</strong> below; per-release documentation is preserved at stable paths so
+links from old PyPI release pages keep resolving.</p>
+</div>
+</td>
+</tr>
+</table>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_related_resources">Related Resources</h2>
+<h2 id="_browse_by_version">Browse by version</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Each published release writes its documentation into a stable
+<code>versions/&lt;tag&gt;/</code> path. Demo slide decks tagged <code>v&lt;core-tag&gt;-demo</code> are merged
+into the matching core release row.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 20%;">
+<col style="width: 80%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Release</th>
+<th class="tableblock halign-left valign-top">Documentation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>v0.1.0b6</code> (current)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><a href="versions/v0.1.0b6/core/user-guide/">User guide</a>,
+  <a href="versions/v0.1.0b6/core/release-notes/">Release notes</a>,
+  <a href="versions/v0.1.0b6-demo/demo/slides/product_business_slice.html">Demo walkthrough deck</a></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_where_source_of_truth_lives">Where source-of-truth lives</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Developer documentation, the FTR backlog, AI agent instructions, and
+architecture material live in the <a href="https://github.com/StefanSchade/spreadsheet-handling">core source
+repository</a> and are not published here by design. This site carries only
+user-facing artifacts (user guide, release notes, demo walkthrough decks).</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_related_resources">Related resources</h2>
 <div class="sectionbody">
 <div class="ulist">
 <ul>
@@ -484,7 +537,7 @@ resolving to the documentation that was current at the time of that release.</p>
 <p><a href="https://github.com/StefanSchade/spreadsheet-handling"><code>spreadsheet-handling</code> source repository</a></p>
 </li>
 <li>
-<p><a href="https://github.com/StefanSchade/spreadsheet-handling-demo"><code>spreadsheet-handling-demo</code> user entry point</a></p>
+<p><a href="https://github.com/StefanSchade/spreadsheet-handling-demo"><code>spreadsheet-handling-demo</code> consumer walkthrough</a></p>
 </li>
 <li>
 <p><a href="https://pypi.org/project/spreadsheet-handling/"><code>spreadsheet-handling</code> on PyPI</a></p>
@@ -493,22 +546,11 @@ resolving to the documentation that was current at the time of that release.</p>
 </div>
 </div>
 </div>
-<div class="sect1">
-<h2 id="_scope">Scope</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>This first publishing slice owns only the core documentation subtree
-(<code>versions/&lt;tag&gt;/core/</code> and <code>latest/core/</code>) plus this root navigation page.
-Demo walkthrough output (<code>demo/</code>) and presentation output (<code>presentations/</code>)
-are reserved for later publishing slices.</p>
-</div>
-</div>
-</div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version v0.1.0b6<br>
-Last updated 2026-05-23 07:48:53 UTC
+Version v0.2.0<br>
+Last updated 2026-06-03 19:43:46 UTC
 </div>
 </div>
 </body>

@@ -438,30 +438,346 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1><code>spreadsheet-handling</code> Release Notes</h1>
 <div class="details">
-<span id="revnumber">version v0.1.0b6,</span>
-<span id="revdate">2026-05-23T07:49:21+00:00</span>
-<br><span id="revremark">3b8e706</span>
+<span id="revnumber">version v0.2.0,</span>
+<span id="revdate">2026-06-03T19:44:13+00:00</span>
+<br><span id="revremark">cd66fbf</span>
 </div>
 <div id="toc" class="toc">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_current_release">1. Current Release</a></li>
+<li><a href="#_0_2_0planned">1. 0.2.0&#8201;&#8212;&#8201;planned</a>
+<ul class="sectlevel2">
+<li><a href="#_highlights">1.1. Highlights</a></li>
+<li><a href="#_user_facing_changes">1.2. User-facing changes</a></li>
+<li><a href="#_transformation_and_pipeline_changes">1.3. Transformation and pipeline changes</a></li>
+<li><a href="#_spreadsheet_backends_and_roundtrip_behavior">1.4. Spreadsheet backends and roundtrip behavior</a></li>
+<li><a href="#_documentation_and_demo">1.5. Documentation and demo</a></li>
+<li><a href="#_migration_notes">1.6. Migration notes</a></li>
+<li><a href="#_internal_architecture_and_maintainability">1.7. Internal architecture and maintainability</a></li>
+<li><a href="#_known_limitations">1.8. Known limitations</a></li>
+</ul>
+</li>
 <li><a href="#_related_links">2. Related Links</a></li>
 </ul>
 </div>
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_current_release">1. Current Release</h2>
+<h2 id="_0_2_0planned">1. 0.2.0&#8201;&#8212;&#8201;planned</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>This page is the source-backed release-notes entry point for the published
-documentation site.</p>
+<p>These notes describe the intended <code>0.2.0</code> release line relative to
+<code>v0.1.0b6</code>, the latest beta tag at the time this draft was written.</p>
 </div>
 <div class="paragraph">
-<p>Detailed historical release notes are intentionally not reconstructed in this
-first Pages publishing slice. The immediate goal is to establish a stable
-release-bound location that can be expanded by future release work.</p>
+<p><code>0.2.0</code> is still early-stage, pre-1.0 software. The release is not a promise
+of long-term API or YAML stability. If cut from this line, however, it is no
+longer positioned as a pure beta prototype: the core architecture, public
+documentation entry points, and release process are now stable enough for
+careful early adopters who are willing to follow the documented migration
+notes.</p>
+</div>
+<div class="sect2">
+<h3 id="_highlights">1.1. Highlights</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Repeated export/reimport/promote cycles are stable: the orchestrator now
+projects the runtime <code>_meta</code> onto a persistable contract before any
+backend writes, so runtime-produced FK-helper v2 relations no longer
+leak into persisted sidecars and replay as stale policy on the next run.
+This closes the <code>Frame 'groups' must have flat columns</code> failure that
+the worldbuilding adoption surfaced. The boundary is intentionally narrow
+and post-pipeline: it prevents <strong>new</strong> contamination on every successful
+run, but a <code>_meta.yaml</code> already promoted from a pre-fix run may still
+need a one-time cleanup of its <code>helper_policies.fk.relations</code> entries
+before the next export can succeed. A complete <code>_meta</code> lifecycle
+inventory and load-time sanitizer are deferred to post-release
+follow-ups (<code>FTR-FK-HELPER-POLICY-LIFECYCLE-P4A</code>,
+<code>FTR-META-LIFECYCLE-INVENTORY-P5</code>).</p>
+</li>
+<li>
+<p>ODS reimport is robust against sheet-wide formatting fillers. Workbooks
+edited with whole-sheet selections (e.g. Ctrl+A + format change in
+LibreOffice Calc) no longer trigger uncontrolled allocation in the ODS
+parser, and a typed <code>SpreadsheetTooLargeError</code> surfaces before unbounded
+growth when an input declares implausible dimensions.</p>
+</li>
+<li>
+<p>FK-helper behavior has moved from convention-driven primitive inference to
+explicit relation policy. Pipelines should now configure or infer FK
+relation policy before running FK-helper primitives.</p>
+</li>
+<li>
+<p>Public documentation entry points were clarified: the README, Pages root,
+release notes, user guide, and demo walkthrough paths now form an
+intent-based user journey rather than a collection of repository paths.</p>
+</li>
+<li>
+<p>Release-readiness tooling was tightened with read-only checks for release
+branch state, README link versioning, Pages publication structure, and
+cross-repo release status.</p>
+</li>
+<li>
+<p>The semantic model documentation now gives maintainers and agents a shared
+vocabulary for metadata meaning, lifecycle state, registry authority, and
+FK-helper contract review.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_user_facing_changes">1.2. User-facing changes</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>Ctrl+C</code> during <code>sheets-run</code> now exits cleanly with <code>Interrupted by user.</code>
+on stderr and a non-zero exit code (130, the POSIX SIGINT convention), in
+place of a raw Python traceback. <code>--debug</code> or <code>-vv</code> still shows the full
+traceback for debugging. The installed entry point is now routed through
+the existing <code>run_cli</code> wrapper, so the previously silent <code>Error: &#8230;&#8203;</code>
+short-message path also reaches real users; reinstall with <code>make setup</code>
+or <code>pip install -e .</code> to regenerate <code>.venv/bin/sheets-run</code>.</p>
+</li>
+<li>
+<p>The core README now directs readers to the maintained demo, the latest user
+guide, and the version archive with clearer intent labels.</p>
+</li>
+<li>
+<p>The Pages root now acts as a version archive with links to core release
+notes, the user guide, and the maintained demo walkthrough.</p>
+</li>
+<li>
+<p>Release-bound README links are guarded so PyPI and other frozen release
+contexts use <code>/versions/&lt;tag&gt;/&#8230;&#8203;</code> documentation links instead of drifting
+to <code>/latest/&#8230;&#8203;</code>.</p>
+</li>
+<li>
+<p>The user-guide transformation catalog was updated for the current FK-helper
+model, including the <code>infer_fk_relations</code> configuration step and
+policy-driven FK-helper primitives.</p>
+</li>
+<li>
+<p>Canonical workbook reimport pipelines that declare helper cleanup now remove
+visible FK helper columns again after the persistence boundary strips
+transient <code>_meta.derived</code> provenance.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_transformation_and_pipeline_changes">1.3. Transformation and pipeline changes</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Added <code>infer_fk_relations</code> as an explicit configuration step. It can inspect
+current frames using a bounded naming-convention mode and write resolved FK
+relation policy to <code>_meta.helper_policies.fk</code>.</p>
+</li>
+<li>
+<p><code>configure_fk_helpers</code> remains the explicit/manual FK policy path.
+<code>targets: "auto"</code> was removed from this step; use <code>infer_fk_relations</code>
+when heuristic relation discovery is wanted.</p>
+</li>
+<li>
+<p>FK-helper primitives now consume v2 relation policy under
+<code>_meta.helper_policies.fk</code> (<code>schema_version: 2</code>) instead of inferring
+relation identity from frame, table, or column names.</p>
+</li>
+<li>
+<p><code>add_fk_helpers</code> writes derived helper provenance that includes
+<code>target_key</code>, so later validation and cleanup can use the declared target
+primary-key column.</p>
+</li>
+<li>
+<p><code>remove_fk_helpers</code>, <code>reorder_fk_helpers</code>, and FK-helper validation now use
+policy and/or derived provenance. Missing required policy or provenance is a
+clear error rather than a silent prefix-based fallback.</p>
+</li>
+<li>
+<p><code>apply_derived_column_policy &#8230;&#8203; policy: drop</code> now falls back to durable
+workbook-view helper metadata (<code>_meta.sheets.&lt;frame&gt;.helper_columns</code>) when
+transient <code>_meta.derived.sheets.&lt;frame&gt;.helper_columns</code> is absent after a
+fresh workbook reimport.</p>
+</li>
+<li>
+<p><code>validate_references</code> gained a <code>no_helper_columns</code> assertion rule. Use it
+after cleanup in reimport pipelines to report helper columns that would
+otherwise reach canonical output.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_spreadsheet_backends_and_roundtrip_behavior">1.4. Spreadsheet backends and roundtrip behavior</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>The FK column wire format, such as <code>id_(&lt;target&gt;)</code>, remains valid for
+spreadsheet roundtrips. The change is where relation meaning is resolved:
+configuration steps may use the convention, but primitive FK-helper steps do
+not infer relation identity from it.</p>
+</li>
+<li>
+<p>No broad new spreadsheet backend capability is introduced in this release
+draft. XLSX remains the primary spreadsheet backend, and ODS/Calc remains
+the second backend used to prove the spreadsheet contract.</p>
+</li>
+<li>
+<p>Roundtrip-sensitive helper behavior is now more explicit because helper
+cleanup and validation rely on declared policy/provenance rather than hidden
+name-pattern recovery.</p>
+</li>
+<li>
+<p>The orchestrator now owns a narrow persistence boundary that projects
+runtime <code><em>meta</code> onto a carrier-neutral persistable contract before save.
+Top-level <code>derived</code> and <code>_</em>*</code>-prefixed keys are dropped, and FK-helper v2
+relation entries under <code>helper_policies.fk.relations</code> are removed when
+their <code>produced_by.step</code> is <code>configure_fk_helpers</code>. The boundary applies
+to every output kind (JSON/YAML/XML/CSV directories and XLSX/ODS); the
+projection is the same for all carriers, with spreadsheet backends
+layering rendering on top. The <code>pipeline.runner.run_app</code> entry point is
+a thin adapter over <code>orchestrate</code> and inherits the same boundary, so
+there is exactly one load/step/save path in the project. See
+<code>docs/semantic_model/08_lifecycle_and_update_semantics.adoc</code> for the
+boundary contract, the post-pipeline / write-side scope, and the
+explicitly deferred follow-ups (<code>FTR-FK-HELPER-POLICY-LIFECYCLE-P4A</code>,
+<code>FTR-META-LIFECYCLE-INVENTORY-P5</code>).</p>
+</li>
+<li>
+<p>The ODS parser no longer materializes empty cells declared via
+<code>number-columns-repeated</code> / <code>number-rows-repeated</code>. This neutralizes the
+common LibreOffice "select all + apply style" carrier pattern, which
+previously expanded a single empty styled cell into millions of dict entries
+and could exhaust process memory on real-world inputs.</p>
+</li>
+<li>
+<p><code>parse_workbook</code> accepts a new keyword argument <code>limits=ParserLimits(&#8230;&#8203;)</code>
+for defense-in-depth caps on parsed rows, columns, and materialized cells.
+Exceeding a limit raises the typed <code>SpreadsheetTooLargeError</code> (re-exported
+from <code>spreadsheet_handling.io_backends.parser_limits</code>) instead of a raw
+<code>MemoryError</code>. Defaults align with the spreadsheet maxima (1,048,576 rows ×
+16,384 columns) with a 10,000,000 cell ceiling per sheet.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_documentation_and_demo">1.5. Documentation and demo</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Public documentation entry points were realigned around the README, Pages
+root, user guide, release notes, and demo walkthroughs.</p>
+</li>
+<li>
+<p>The maintained demo/tutorial path was realigned with explicit FK-helper
+policy semantics.</p>
+</li>
+<li>
+<p>The semantic model documentation was added under <code>docs/semantic_model/</code>,
+including the problem statement, semantic sets and lifecycle model, registry
+role, adoption strategy, and FK-helper contract matrix.</p>
+</li>
+<li>
+<p>The project evolution narrative was updated so future maintainers and agents
+can understand the release, FK-helper, registry, and semantic-model phases
+without reading every historical FTR.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_migration_notes">1.6. Migration notes</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Pipelines that relied on <code>configure_fk_helpers</code> with <code>targets: "auto"</code> must
+switch to an explicit <code>infer_fk_relations</code> step before FK-helper primitives,
+or provide explicit/manual relation policy through <code>configure_fk_helpers</code>.</p>
+</li>
+<li>
+<p>Pipelines that previously expected <code>add_fk_helpers</code> to discover FK relations
+implicitly from column names must run a configuration step first.</p>
+</li>
+<li>
+<p>Pipelines that relied on prefix fallback during <code>remove_fk_helpers</code> should
+preserve the derived helper provenance written by <code>add_fk_helpers</code> or provide
+explicit policy. Recovery from externally edited workbooks without
+provenance is not part of the normal primitive behavior.</p>
+</li>
+<li>
+<p>FK relation policy now uses the v2 relation-oriented shape under the existing
+<code>_meta.helper_policies.fk</code> root. The relation shape includes
+<code>schema_version: 2</code>, <code>relations</code>, <code>source_frame</code>, <code>source_column</code>,
+<code>target_frame</code>, mandatory <code>target_key</code>, helper fields/columns, and
+<code>produced_by</code> metadata.</p>
+</li>
+<li>
+<p>The old <code>id_(&lt;target&gt;)</code> FK column convention is not removed. It is still the
+cell-level wire format and may be used by <code>infer_fk_relations</code>; it is no
+longer the hidden authority inside primitive FK-helper execution.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_internal_architecture_and_maintainability">1.7. Internal architecture and maintainability</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Registry contract lifecycle guidance now distinguishes current state, target
+state, and transition bridges so registry entries can describe migrations
+without overstating runtime truth.</p>
+</li>
+<li>
+<p>Registry artifacts were relocated to root-level <code>registries/</code> paths while
+documentation keeps the reviewed registry contract context.</p>
+</li>
+<li>
+<p>Release tooling now includes read-only helpers for release branch validation,
+Pages publication checks, cross-repo release status, and README link
+versioning.</p>
+</li>
+<li>
+<p>GitHub Actions workflow permissions were tightened to minimal defaults with
+job-level overrides where required.</p>
+</li>
+<li>
+<p>The FK-helper semantic contract matrix and guards reduce the chance that
+future refactors reintroduce primitive inference or stale registry wording.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_known_limitations">1.8. Known limitations</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>0.2.0</code> remains pre-1.0. Public behavior is more coherent than the beta
+prototype line, but compatibility promises are intentionally limited.</p>
+</li>
+<li>
+<p>Historical beta-by-beta release notes are not reconstructed here. This page
+focuses on changes since <code>v0.1.0b6</code>.</p>
+</li>
+<li>
+<p>Some semantic-model adoption work is intentionally documentation-first.
+Future transformation families still need their own adoption slices.</p>
+</li>
+<li>
+<p>REVIEW-002 residual maintainability items remain tracked outside these
+release notes. They are not treated as release blockers unless later review
+promotes them to 0.2.0 scope.</p>
+</li>
+<li>
+<p>The FK-helper policy model does not yet claim to cover composite keys,
+generic relation modeling, or every possible recovery flow for externally
+edited workbooks.</p>
+</li>
+</ul>
+</div>
 </div>
 </div>
 </div>
@@ -488,8 +804,8 @@ user entry point</a></p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version v0.1.0b6<br>
-Last updated 2026-05-23 07:48:53 UTC
+Version v0.2.0<br>
+Last updated 2026-06-03 19:43:46 UTC
 </div>
 </div>
 </body>
