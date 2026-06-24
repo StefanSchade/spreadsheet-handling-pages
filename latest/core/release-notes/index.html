@@ -438,32 +438,361 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1><code>spreadsheet-handling</code> Release Notes</h1>
 <div class="details">
-<span id="revnumber">version v0.2.0,</span>
-<span id="revdate">2026-06-03T19:44:13+00:00</span>
-<br><span id="revremark">cd66fbf</span>
+<span id="revnumber">version v0.2.1,</span>
+<span id="revdate">2026-06-24T11:52:36+00:00</span>
+<br><span id="revremark">6b83df1</span>
 </div>
 <div id="toc" class="toc">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_0_2_0planned">1. 0.2.0&#8201;&#8212;&#8201;planned</a>
+<li><a href="#_0_2_1_released">1. 0.2.1 (released)</a>
 <ul class="sectlevel2">
-<li><a href="#_highlights">1.1. Highlights</a></li>
-<li><a href="#_user_facing_changes">1.2. User-facing changes</a></li>
-<li><a href="#_transformation_and_pipeline_changes">1.3. Transformation and pipeline changes</a></li>
-<li><a href="#_spreadsheet_backends_and_roundtrip_behavior">1.4. Spreadsheet backends and roundtrip behavior</a></li>
-<li><a href="#_documentation_and_demo">1.5. Documentation and demo</a></li>
-<li><a href="#_migration_notes">1.6. Migration notes</a></li>
-<li><a href="#_internal_architecture_and_maintainability">1.7. Internal architecture and maintainability</a></li>
-<li><a href="#_known_limitations">1.8. Known limitations</a></li>
+<li><a href="#_functional_model_project_memory_and_reset_direction">1.1. Functional Model, Project Memory, and reset direction</a></li>
+<li><a href="#_spreadsheet_backends_and_roundtrip_behavior">1.2. Spreadsheet backends and roundtrip behavior</a></li>
+<li><a href="#_pipeline_steps_and_role_based_projection">1.3. Pipeline steps and role-based projection</a></li>
+<li><a href="#_schema_maintenance_cli">1.4. Schema maintenance CLI</a></li>
+<li><a href="#_cli_surface_cleanup">1.5. CLI surface cleanup</a></li>
+<li><a href="#_known_limitations">1.6. Known limitations</a></li>
 </ul>
 </li>
-<li><a href="#_related_links">2. Related Links</a></li>
+<li><a href="#_0_2_0_released">2. 0.2.0 (released)</a>
+<ul class="sectlevel2">
+<li><a href="#_highlights">2.1. Highlights</a></li>
+<li><a href="#_user_facing_changes">2.2. User-facing changes</a></li>
+<li><a href="#_transformation_and_pipeline_changes">2.3. Transformation and pipeline changes</a></li>
+<li><a href="#_spreadsheet_backends_and_roundtrip_behavior_2">2.4. Spreadsheet backends and roundtrip behavior</a></li>
+<li><a href="#_documentation_and_demo">2.5. Documentation and demo</a></li>
+<li><a href="#_migration_notes">2.6. Migration notes</a></li>
+<li><a href="#_internal_architecture_and_maintainability">2.7. Internal architecture and maintainability</a></li>
+<li><a href="#_known_limitations_2">2.8. Known limitations</a></li>
+</ul>
+</li>
+<li><a href="#_related_links">3. Related Links</a></li>
 </ul>
 </div>
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_0_2_0planned">1. 0.2.0&#8201;&#8212;&#8201;planned</h2>
+<h2 id="_0_2_1_released">1. 0.2.1 (released)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>These notes describe the <code>0.2.1</code> release line on top of <code>v0.2.0</code>.
+The release is intended as a stable foothold before the planned
+contract-first domain/meta reset around a Functional-Model-derived bridge DSL.
+It preserves the current working runtime surface, captures the Functional Model
+catch-up work, and records the architectural decision that future domain/meta
+changes may intentionally break historical internals when doing so reduces
+sediment.</p>
+</div>
+<div class="paragraph">
+<p><code>0.2.1</code> remains pre-1.0 software. It is not a long-term compatibility promise.
+Its purpose is to provide an installable PyPI anchor before larger internal
+domain/meta changes begin.</p>
+</div>
+<div class="sect2">
+<h3 id="_functional_model_project_memory_and_reset_direction">1.1. Functional Model, Project Memory, and reset direction</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>The Functional Model was extended from requirement-inquiry material rather
+than from implementation details alone. New or updated use-case concepts
+cover Cell Codec, Compact Multiaxis, Sparse Defaults, derived frame views,
+validation use cases, header shape projection, hierarchical config
+projection, aggregate/pivot reconciliation, workbook-view boundary behavior,
+and XRef/discriminator composition.</p>
+</li>
+<li>
+<p>The repository-wide June-2026 transformation/capability family inventory was
+archived in cold storage and linked from Project Memory as the canonical
+reference for implemented capability families and Functional Model coverage
+status. The inventory remains evidence material, not a backlog or second
+source of truth.</p>
+</li>
+<li>
+<p>Future requirement inquiries were preserved for later work, including nested
+structures, typed cell values, conditional follow-up table views, and
+multi-row header presentation. These are recorded as future concepts, not as
+implemented <code>0.2.1</code> runtime capabilities.</p>
+</li>
+<li>
+<p><code>ADR-CONTRACT-FIRST-DOMAIN-META-REWRITE</code> accepts a contract-first
+domain/meta reset around a stabilized bridge DSL. The ADR explicitly frames
+the domain/IO seam as a shared <code>Frames + Meta</code> language whose writer, reader,
+lifecycle, conflict, and deletion rules should be derived from Functional
+Model use cases. It preserves adapter/parser/renderer knowledge, allows
+targeted deletion of obvious duplicate paths, and rejects recreating the
+current registry-scale surface under new names.</p>
+</li>
+<li>
+<p>Project Memory now records the bridge-DSL reset as a high-weight
+Domain/Meta steering decision. This is intended to counterbalance overly
+conservative readings of the existing documentation: low external adoption
+makes bounded breaking changes acceptable when they reduce historical
+implementation sediment.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_spreadsheet_backends_and_roundtrip_behavior">1.2. Spreadsheet backends and roundtrip behavior</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>User-authored text orientation (vertical / rotated cells) is preserved
+through XLSX roundtrips under the <code>text_orientations</code> presentation metadata
+key. ODS roundtrips also preserve text orientation: <code>style:rotation-angle</code>
+is written on <code>style:table-cell-properties</code>, the carrier ODF defines for
+cell text rotation, so the rotation is honoured by external consumers such
+as LibreOffice Calc rather than only by the project&#8217;s own parser.</p>
+</li>
+<li>
+<p>ODS column widths are preserved across render/parse via
+<code>style:table-column-properties</code> with an approximate Excel-character / cm
+conversion. The conversion is documented as approximate; widths authored by
+external ODS producers may not round-trip with byte-exact XLSX parity.</p>
+</li>
+<li>
+<p>The ODS presentation-metadata extractors (column widths, text orientations)
+share the grid parser&#8217;s defense against sheet-wide LibreOffice formatting
+fillers: extraction is clipped to the parsed content extent so that a
+<code>number-rows-repeated</code> / <code>number-columns-repeated</code> filler carrying a
+rotation or column-width style cannot materialize one metadata entry per
+implied address, and the same <code>ParserLimits</code> are honoured on per-axis and
+per-cell bases as defense-in-depth.</p>
+</li>
+<li>
+<p>User-authored horizontal cell alignment is preserved through XLSX and ODS
+roundtrips under the <code>horizontal_alignments</code> presentation metadata key.
+Canonical vocabulary is intentionally narrow in this slice — only <code>left</code>,
+<code>center</code>, and <code>right</code> are recognised; XLSX <code>general</code> / <code>fill</code> / <code>justify</code> /
+<code>distributed</code> / <code>centerContinuous</code> are dropped on read and never emitted on
+write. The ODS write path emits <code>fo:text-align</code> on
+<code>style:paragraph-properties</code> (the ODF-defined carrier for cell text
+alignment); the read path accepts both absolute (<code>left</code> / <code>right</code>) and
+locale-neutral (<code>start</code> / <code>end</code>) forms and normalises to the canonical
+absolute encoding so re-imports under different locales remain stable.</p>
+</li>
+<li>
+<p>The XLSX renderer now merges alignment attributes when more than one render
+op touches <code>cell.alignment</code> (currently <code>SetTextOrientation</code> and
+<code>SetHorizontalAlignment</code>). Existing rotation behaviour is unchanged when no
+other alignment op is present; cells that combine rotation and horizontal
+alignment now retain both attributes regardless of op-dispatch order.</p>
+</li>
+<li>
+<p>The ODS horizontal-alignment extractor inherits the same content-extent
+clipping and <code>ParserLimits</code> enforcement as the existing text-orientation
+and column-width extractors, so a sheet-wide "select all + left-align"
+filler cannot materialise one metadata entry per implied address.</p>
+</li>
+<li>
+<p>The presentation-metadata families <code>column_widths</code>, <code>text_orientations</code>,
+and <code>horizontal_alignments</code> now share a single replace-or-clear policy on
+parse: parsed carrier state is authoritative for the sheet-local entry,
+and clearing the visible carrier removes any persisted entry for that
+sheet so the next roundtrip cannot silently reapply formatting the user
+has removed. Previously this behaviour was implemented only for
+<code>horizontal_alignments</code>; <code>text_orientations</code> and <code>column_widths</code>
+retained merge-only semantics and could surface stale embedded metadata
+after a cleared visible carrier. <strong>Behavioural note for <code>column_widths</code>:</strong>
+removing a custom column width from the visible carrier now removes the
+embedded entry as well, where previously the entry persisted. This is a
+deliberate alignment of behaviour across the three families and matches
+user intent ("I cleared this; do not reapply it").</p>
+</li>
+<li>
+<p>User-authored vertical cell alignment is preserved through XLSX and ODS
+roundtrips under the <code>vertical_alignments</code> presentation metadata key.
+Canonical vocabulary is intentionally narrow in this slice — only <code>top</code>,
+<code>center</code>, and <code>bottom</code> are recognised; XLSX <code>justify</code> / <code>distributed</code>
+and ODS <code>automatic</code> are dropped on read and never emitted on write. The
+ODS write path emits <code>style:vertical-align</code> on
+<code>style:table-cell-properties</code> (the ODF-defined carrier for cell
+vertical alignment) and applies the intrinsic ODF ↔ OOXML vocabulary
+remap — canonical <code>center</code> serialises as ODF <code>middle</code> on write and ODF
+<code>middle</code> normalises to canonical <code>center</code> on read — so cross-backend
+roundtrips stay stable. The new family joins
+<code>column_widths</code> / <code>text_orientations</code> / <code>horizontal_alignments</code> under
+the same authoritative-carrier semantics.</p>
+</li>
+<li>
+<p>The hidden XLSX / ODS <code>_meta</code> carrier now roundtrips the canonical
+workbook meta as one coherent mapping even when a sheet-level
+representation accidentally leaks into the writer or a malformed file
+carries a nested <code>workbook_meta_blob</code> wrapper. The carrier-local
+helper field <code>workbook_meta_blob</code> is recognised as a hidden-sheet
+convention only, so it can no longer shadow or structurally replace
+<code>_meta.workbook_view</code> during readback. This restores XLSX workbook-view
+readback parity with ODS for declarative <code>project_by_role</code> pipelines.
+See <code>BUG-XLSX-WORKBOOK-VIEW-BLOB-READBACK-P4A</code>.</p>
+</li>
+<li>
+<p>As a follow-up hardening, <code>canonicalize_workbook_meta</code> now strips the
+sheet-level export marker keys (<code>author</code>, <code>exported_at</code>, <code>version</code>)
+from canonical workbook meta whenever they carry the <code>MetaPass</code>-default
+empty signature (<code>None</code> / empty string). They describe the hidden
+<code>_meta</code> sheet itself, not the canonical workbook meta contract. Without
+the strip, a corrupt or empty inner blob would leave the outer wrapper
+visible as if it were canonical content, hiding the absence of
+<code>workbook_view</code> behind wrapper noise (the post-<code>e939623</code> residual
+symptom). Marker keys with caller-assigned non-empty values still
+round-trip unchanged. See
+<code>BUG-XLSX-WORKBOOK-VIEW-CANONICAL-META-LOSS-P4A</code>.</p>
+</li>
+<li>
+<p>The persistence boundary now applies a narrow Intent-vs-Resolution rule for
+the cross-carrier <code>_meta</code> sidecar failure observed in the worldbuilding
+consumer. Persisted meta keeps declarative intent, but drops three
+reconstructible resolution facets from the captured ODS-produced sidecar:
+<code>legend_blocks[<strong>].resolved</code>, <code>xref_crosstable[</strong>].dense_axes.resolved</code>, and
+<code>xref_crosstable[*].column_keys</code>. This prevents backend-produced resolved
+layout / axis snapshots from poisoning later XLSX workbook-view readback
+while leaving broader lifecycle classification to the existing metadata
+follow-up FTRs. See <code>BUG-CROSS-CARRIER-META-ROUNDTRIP-P4A</code>.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_pipeline_steps_and_role_based_projection">1.3. Pipeline steps and role-based projection</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>New pipeline step <code>project_by_role</code> reorders / retains a projected frame&#8217;s
+columns by foundation column-role (<code>row_identity</code>, <code>display_helper</code>,
+<code>matrix_value</code>). <code>direction:</code> is required (<code>outbound</code> retains all three
+roles; <code>inbound</code> drops <code>display_helper</code>); there is no silent default.
+Optional <code>role_order:</code> permutes the per-direction default order;
+including <code>display_helper</code> in an inbound <code>role_order</code> is a validation
+error. Optional <code>helper_columns:</code> and <code>key_columns:</code> are interim
+per-call-site overrides that win over scattered upstream sources.
+See <code>FTR-DYNAMIC-FRAME-PROJECTION-IMPL-P5</code>.</p>
+</li>
+<li>
+<p>Role classification is <strong>consumed</strong> from the foundation taxonomy
+defined in <code>FTR-PROJECTED-FRAME-COLUMN-SEMANTICS-P5</code>; the step does
+not introduce a parallel role vocabulary. A new shared resolver
+module (<code>spreadsheet_handling.domain.column_roles</code>) is the single
+source of truth for role detection in the current code base; the
+future targeting implementation slice
+(<code>FTR-DYNAMIC-VIEW-COLUMN-TARGETING-IMPL-P5</code>) will reuse it.</p>
+</li>
+<li>
+<p>The worldbuilding consumer migrated its two projection plugins
+(<code>build_story_cast_matrix_view</code>, <code>build_story_cast_matrix_payload</code>)
+to <code>project_by_role</code> at all 10 current call sites (5 outbound<br>
+5 inbound). The plugin functions remain importable and
+behavior-compatible for one release cycle; per-surface rollback is a
+one-line YAML edit (outbound: restore the <code>*_matrix_enriched</code>
+<code>join_frames output:</code> name and re-introduce the plugin step;
+inbound: restore the <code>*_matrix_payload</code> consumer <code>matrix:</code> name and
+re-introduce the plugin step).</p>
+</li>
+<li>
+<p><code>add_validations</code> rule targets now support role-based column targeting for
+dynamic workbook views. A target can specify <code>roles: [matrix_value]</code>
+(or <code>row_identity</code> / <code>display_helper</code>) and the step expands the target to
+the matching concrete columns using the shared column-role resolver. This
+is intended to replace consumer-side plugin fan-out such as
+<code>add_from_legend_constraints_for_matrix</code> for dynamic matrix columns.
+The first slice covers the validation / constraint metadata path; broader
+presentation-target surfaces remain deferred.</p>
+</li>
+<li>
+<p>FK Helper Slice 2 (v1 retirement): <code>configure_fk_helpers</code> now writes only the
+durable v2 relation model under <code>_meta.helper_policies.fk.relations</code>; the
+legacy v1 per-target dict (<code>_meta.helper_policies.fk.&lt;target_key&gt;</code>) is no
+longer written. Those v2 relations are now durable&#8201;&#8212;&#8201;the persistence
+boundary no longer prunes relations by <code>produced_by.step</code>, so they survive
+into the sidecar / workbook and drive reverse-pipeline cleanup without a v1
+dict. <code>produced_by</code> is retained on each relation as provenance and as the
+cross-producer conflict key. The Dino-shaped replay failure that motivated
+pruning configure relations is now contained at the materialisation point:
+<code>enrich_helpers</code> preserves the source frame&#8217;s column flatness and skips
+relations whose target frame is absent, so a durable relation can no longer
+turn a flat frame into a non-flat one or crash on a missing target. Public
+YAML / CLI surface is unchanged; the persisted <code>_meta</code> shape shrinks (no v1
+dict). <strong>Migration:</strong> an artifact produced by a pre-Slice-2 run (v1 dict kept,
+configure v2 pruned) that is reimported without a fresh forward run has no v2
+cleanup anchor unless it also recorded <code>sheets.&lt;frame&gt;.helper_columns</code>;
+re-run the forward pipeline once to re-bootstrap the durable v2 relation. See
+<code>audit/fk_helper_slice2_v1_retirement_review.adoc</code>.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_schema_maintenance_cli">1.4. Schema maintenance CLI</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>New CLI entry point <code>sheets-schema-maintain</code> performs explicit one-shot
+schema column maintenance over loaded Frames. The supported operations are
+<code>add_column</code>, <code>drop_column</code>, <code>rename_column</code>, and <code>reorder_columns</code>.</p>
+</li>
+<li>
+<p>The command is dry-run by default. Dry-run output is routed to the new
+output-only saver kind <code>discard</code>, which accepts the final Frames payload but
+writes no artifact. User-selected output writes require <code>--write</code>; write mode
+uses the caller-provided <code>--out-kind</code> and <code>--out-path</code>.</p>
+</li>
+<li>
+<p>Schema maintenance reports are emitted outside Frames and outside <code>_meta</code>.
+The report is printed as JSON to stdout by default, or written to the path
+supplied with <code>--report</code>.</p>
+</li>
+<li>
+<p>Known limitations for this maintenance slice: there is no normal
+<code>sheets-run</code> YAML step and no public pipeline registry step; this is not a
+generic migration framework; workbook-header inference and dynamic
+projection schema handling are out of scope; FK relation drops remain
+blocked. (The earlier limitation about residual v1
+<code>_meta.helper_policies.fk</code> per-target entries being blocked no longer
+applies: FK Helper Slice 2 retired the v1 producer write, so no such
+entry is produced; a v1 dict in a legacy sidecar is inert and passes
+through unchanged.)</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_cli_surface_cleanup">1.5. CLI surface cleanup</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Removed the placeholder example console scripts
+<code>sheets-example-json-to-xlsx</code> and <code>sheets-example-xlsx-to-json</code>. The
+maintained public CLI surface is now <code>sheets-run</code> plus the dedicated
+<code>sheets-schema-maintain</code> command.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_known_limitations">1.6. Known limitations</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Still true from <code>0.2.0</code>: visible spreadsheet payload is a string substrate.
+Numeric, boolean, and date/time values in workbook cells are read and written
+as text by both the XLSX and ODS backends; type information present in the
+carrier is not preserved by default. A JSON value such as
+<code>{"sequence_no": 1}</code> may therefore round-trip through a workbook as
+<code>{"sequence_no": "1"}</code>. Consumers that need typed roundtrip for specific
+columns should declare a codec through the <code>cell_codecs</code> workbook metadata
+family. The decision and documented migration paths are recorded in
+<code>ADR-VISIBLE-CELL-TYPING-STRING-SUBSTRATE</code>
+(<code>docs/technical_model/ch03_architecture_decisions/</code>); the closing of
+<code>FTR-VISIBLE-CELL-TYPING-STRATEGY-P5</code> is the explicit project-level
+position behind this behaviour.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_0_2_0_released">2. 0.2.0 (released)</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>These notes describe the intended <code>0.2.0</code> release line relative to
@@ -478,7 +807,7 @@ careful early adopters who are willing to follow the documented migration
 notes.</p>
 </div>
 <div class="sect2">
-<h3 id="_highlights">1.1. Highlights</h3>
+<h3 id="_highlights">2.1. Highlights</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -527,7 +856,7 @@ FK-helper contract review.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_user_facing_changes">1.2. User-facing changes</h3>
+<h3 id="_user_facing_changes">2.2. User-facing changes</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -566,7 +895,7 @@ transient <code>_meta.derived</code> provenance.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_transformation_and_pipeline_changes">1.3. Transformation and pipeline changes</h3>
+<h3 id="_transformation_and_pipeline_changes">2.3. Transformation and pipeline changes</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -609,7 +938,7 @@ otherwise reach canonical output.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_spreadsheet_backends_and_roundtrip_behavior">1.4. Spreadsheet backends and roundtrip behavior</h3>
+<h3 id="_spreadsheet_backends_and_roundtrip_behavior_2">2.4. Spreadsheet backends and roundtrip behavior</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -663,7 +992,7 @@ from <code>spreadsheet_handling.io_backends.parser_limits</code>) instead of a r
 </div>
 </div>
 <div class="sect2">
-<h3 id="_documentation_and_demo">1.5. Documentation and demo</h3>
+<h3 id="_documentation_and_demo">2.5. Documentation and demo</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -688,7 +1017,7 @@ without reading every historical FTR.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_migration_notes">1.6. Migration notes</h3>
+<h3 id="_migration_notes">2.6. Migration notes</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -722,7 +1051,7 @@ longer the hidden authority inside primitive FK-helper execution.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_internal_architecture_and_maintainability">1.7. Internal architecture and maintainability</h3>
+<h3 id="_internal_architecture_and_maintainability">2.7. Internal architecture and maintainability</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -751,7 +1080,7 @@ future refactors reintroduce primitive inference or stale registry wording.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_known_limitations">1.8. Known limitations</h3>
+<h3 id="_known_limitations_2">2.8. Known limitations</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -782,7 +1111,7 @@ edited workbooks.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_related_links">2. Related Links</h2>
+<h2 id="_related_links">3. Related Links</h2>
 <div class="sectionbody">
 <div class="ulist">
 <ul>
@@ -804,8 +1133,8 @@ user entry point</a></p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version v0.2.0<br>
-Last updated 2026-06-03 19:43:46 UTC
+Version v0.2.1<br>
+Last updated 2026-06-24 11:52:17 UTC
 </div>
 </div>
 </body>

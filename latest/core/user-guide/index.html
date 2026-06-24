@@ -438,9 +438,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1>Project <code>spreadsheet-handling</code>&#8201;&#8212;&#8201;User Guide</h1>
 <div class="details">
-<span id="revnumber">version v0.2.0,</span>
-<span id="revdate">2026-06-03T19:44:13+00:00</span>
-<br><span id="revremark">cd66fbf</span>
+<span id="revnumber">version v0.2.1,</span>
+<span id="revdate">2026-06-24T11:52:36+00:00</span>
+<br><span id="revremark">6b83df1</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -557,6 +557,127 @@ CLI input and output options choose how those frames are read and written:</p>
 first-hour walkthrough with checked-in input data, pipeline files, and expected
 outputs. The user guide focuses on the configuration concepts and transform
 catalog rather than duplicating that tutorial.</p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_one_shot_schema_column_maintenance">One-Shot Schema Column Maintenance</h5>
+<div class="paragraph">
+<p>Use <code>sheets-schema-maintain</code> when you need an explicit, reviewable column schema
+change over loaded Frames: add a column, drop a column, rename a column, or
+reorder columns. It is a maintenance command, not a normal pipeline step. Use
+ordinary roundtrip editing when the change belongs in the spreadsheet payload
+itself; use schema maintenance when the column contract has changed and you
+want the tool to check recognized metadata references before writing output.</p>
+</div>
+<div class="paragraph">
+<p>The command is dry-run by default. In dry-run mode the loaded Frames pass
+through the orchestrator and then into the output-only <code>discard</code> saver, so no
+output artifact is written. Add <code>--write</code> to allow a user-selected output write;
+write mode requires both <code>--out-kind</code> and <code>--out-path</code>.</p>
+</div>
+<div class="paragraph">
+<p>Every run emits a machine-readable JSON report outside Frames and outside
+<code>_meta</code>. If <code>--report</code> is omitted, the report is printed to stdout. If
+<code>--report</code> is supplied, the report is written to that path. Blocking failures
+stop the write before the saver runs, but the report is still emitted.</p>
+</div>
+<div class="paragraph">
+<p>Supported operations:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>add_column</code></p>
+</li>
+<li>
+<p><code>drop_column</code></p>
+</li>
+<li>
+<p><code>rename_column</code></p>
+</li>
+<li>
+<p><code>reorder_columns</code></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Metadata handling is deliberately conservative. Recognized metadata references
+are updated, pruned, or blocked according to explicit rules. Ambiguous,
+malformed, or unsupported structured references block the operation. Unknown
+plugin-owned metadata is not string-searched or heuristically rewritten; it
+blocks only when a structured frame/column reference is detected. <code>_meta.derived</code>
+is non-authoritative and does not drive schema decisions.</p>
+</div>
+<div class="paragraph">
+<p>Known limitations:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>no public <code>sheets-run</code> YAML step and no public pipeline registry step;</p>
+</li>
+<li>
+<p>no generic migration framework;</p>
+</li>
+<li>
+<p>no workbook-header inference;</p>
+</li>
+<li>
+<p>no dynamic projection schema handling;</p>
+</li>
+<li>
+<p>FK relation drops remain blocked.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Dry-run rename with the report printed to stdout:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">sheets-schema-maintain \
+  --in-kind json_dir --in-path data/input \
+  --op rename_column \
+  --frame characters \
+  --source-column name \
+  --target-column display_name</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Write-mode rename from <code>json_dir</code> to <code>json_dir</code> with a report file:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">sheets-schema-maintain \
+  --in-kind json_dir --in-path data/input \
+  --write \
+  --out-kind json_dir --out-path build/schema-updated \
+  --op rename_column \
+  --frame characters \
+  --source-column name \
+  --target-column display_name \
+  --report build/schema-maintenance-report.json</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Drop with explicit pruning of supported references:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">sheets-schema-maintain \
+  --in-kind json_dir --in-path data/input \
+  --write \
+  --out-kind json_dir --out-path build/schema-updated \
+  --op drop_column \
+  --frame characters \
+  --source-column obsolete_note \
+  --prune \
+  --report build/drop-obsolete-note-report.json</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>--prune</code> only removes explicitly supported references. Unsupported structured
+references still block, including FK relations that touch the dropped column.</p>
 </div>
 </div>
 </div>
@@ -703,7 +824,9 @@ and <code>compact_transforms.adoc</code>.</p>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>column_key</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Column name in the output holding the original column label (default: <code>column_key</code>).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Field name</strong> in the output relation that stores the column-axis address value
+  (default: <code>column_key</code>).  This is a field name, not a list of axis values —
+  see <code>column_keys</code> on <code>contract_xref</code> for that.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>value</code></p></td>
@@ -713,7 +836,20 @@ and <code>compact_transforms.adoc</code>.</p>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>drop_empty</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">If <code>true</code>, omit rows where the cell value is empty or falsy. Default: <code>false</code>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If <code>true</code>, omit rows where the cell value is empty or blank.  Default: <code>false</code>.
+  With <code>base_relation</code>: a blank in-scope cell removes the matching base tuple.
+  Without <code>base_relation</code>: a blank cell either produces a tuple with empty value
+  (<code>false</code>) or is omitted (<code>true</code>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>base_relation</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Optional name of an existing relation frame for scoped recomposition.  When
+  absent, <code>expand_xref</code> converts the matrix to a new relation (standard mode).
+  When present, the matrix cells define the update scope and the matching
+  base-relation tuples are replaced or removed; relation rows whose addresses
+  fall outside the matrix scope are preserved and appended to the output.
+  First-run pipelines with no prior relation omit this parameter.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code></p></td>
@@ -770,8 +906,10 @@ original matrix had no empty cells in the expanded columns.</p>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>column_key</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Column in the relation holding the column labels. Defaults to value persisted
-  in meta by the preceding <code>expand_xref</code>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Field name</strong> in the relation that holds the column-axis address values.
+  Defaults to the value stored in meta by the preceding <code>expand_xref</code> (or the
+  literal <code>column_key</code>).  This is a field name, not a list of axis values —
+  see <code>column_keys</code> below.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>value</code></p></td>
@@ -781,12 +919,23 @@ original matrix had no empty cells in the expanded columns.</p>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>column_keys</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Explicit ordered list of output columns to generate (pins column order).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Explicit ordered list of <strong>column-axis values</strong> that become the visible matrix
+  columns.  (<code>column_key</code> names the field; <code>column_keys</code> lists the values in
+  that field.)  When supplied together with <code>dense_axes.columns_from</code>, both
+  must resolve to the same ordered list — a mismatch fails fast.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>fill_value</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Value to place in cells with no matching relation row. Default: empty string.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>dense_axes</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Map with optional <code>rows_from</code> and/or <code>columns_from</code> keys.  Each specifies an
+  entity frame and key field whose unique values drive the corresponding axis.
+  When <code>columns_from</code> is supplied, the resolved value list must match any
+  explicit <code>column_keys</code> exactly (consistency contract, not precedence).</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code></p></td>
@@ -805,6 +954,89 @@ original matrix had no empty cells in the expanded columns.</p>
   relation: permission_rows
   output: role_permissions
   row_keys: role_id</code></pre>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title"><code>column_key</code> vs <code>column_keys</code></div>
+<div class="paragraph">
+<p><code>column_key</code> and <code>column_keys</code> look similar but carry different information:</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 25%;">
+<col style="width: 75%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Parameter</th>
+<th class="tableblock halign-left valign-top">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>column_key</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Field name</strong> — the name of the field in the long/relation frame that holds
+  the column-axis address (e.g. <code>character_name</code>, <code>context_id</code>, <code>product_id</code>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>column_keys</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Value list</strong> — an explicit, ordered list of concrete axis values that become
+  the visible matrix columns (e.g. <code>[Galli, Donzo, Rexi]</code>).</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p>Example: <code>character_name</code> is the field name; <code>Galli</code>, <code>Donzo</code>, <code>Rexi</code> are the values.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml">- step: contract_xref
+  relation: story_cast_role_named
+  output: story_cast_role_matrix
+  row_keys: [story_id]
+  column_key: character_name      # field name in the relation
+  column_keys: [Galli, Donzo, Rexi]   # concrete axis values
+  value: value</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>column_key</code> does not have to be a technical primary key.  A configured unique
+alternate key (such as <code>character_name</code>) is valid when it is declared unique.</p>
+</div>
+<div class="paragraph">
+<p><strong>Column-axis key sources</strong> (<code>contract_xref</code> only):</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p><code>column_keys</code> only → list used directly.</p>
+</li>
+<li>
+<p><code>dense_axes.columns_from</code> only → list resolved from the entity frame at runtime.</p>
+</li>
+<li>
+<p>Both supplied → must match exactly; a mismatch fails fast (consistency
+contract, not precedence).</p>
+</li>
+<li>
+<p>Neither → falls back to <code>column_keys</code> stored in meta from a prior run, then
+to relation column order.</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Sparse-default cells and <code>expand_xref</code></div>
+<div class="paragraph">
+<p><code>expand_xref</code> does not interpret sparse-default metadata.  If blank cells in
+the matrix represent a compressed default (introduced by <code>sparse_collapse</code>),
+run <code>sparse_expand</code> before <code>expand_xref</code> to restore explicit default values.
+<code>sparse_collapse</code> / <code>sparse_expand</code> are separate transformations with their own
+registered steps.</p>
+</div>
 </div>
 </div>
 <hr>
@@ -1231,6 +1463,39 @@ heuristic of <code>infer_fk_relations</code>; it is no longer interpreted by pri
 </tr>
 </tbody>
 </table>
+<div class="paragraph">
+<p><code>add_validations</code> supports explicit column targets and role-based targets.
+For dynamic workbook views, prefer an explicit <code>frame:</code> when using <code>roles:</code>.
+The <code>sheet:</code> field names the visible workbook sheet where the validation is
+rendered. The <code>frame:</code> field names the frame used for column-role resolution.
+In projected workbook views, this is usually the semantic source frame that
+carries row-key, xref, helper-column, or other role metadata; it is not
+necessarily the final display/helper frame used to render the visible sheet.
+<code>frame:</code> may be omitted when the visible sheet and role-resolution frame are
+unambiguous, but keeping it explicit is recommended for consumer pipelines
+that use projected workbook views.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml">- step: add_validations
+  rules:
+    - target:
+        sheet: story_groups
+        frame: story_group_matrix
+        roles: [matrix_value]
+      rule:
+        type: from_legend
+        legend: story_group_codes
+        include_empty: true</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><code>roles:</code> accepts the foundation roles <code>row_identity</code>, <code>display_helper</code>, and
+<code>matrix_value</code>. It is mutually exclusive with explicit <code>column:</code> or
+<code>columns:</code> targets. Use <code>roles: [matrix_value]</code> for dynamic matrix value
+columns that previously required consumer-side fan-out plugins such as
+<code>add_from_legend_constraints_for_matrix</code>.</p>
+</div>
 </div>
 <div class="sect5">
 <h6 id="_configuration">Configuration</h6>
@@ -1367,8 +1632,8 @@ heuristic of <code>infer_fk_relations</code>; it is no longer interpreted by pri
 </div>
 <div id="footer">
 <div id="footer-text">
-Version v0.2.0<br>
-Last updated 2026-06-03 19:43:46 UTC
+Version v0.2.1<br>
+Last updated 2026-06-24 11:52:17 UTC
 </div>
 </div>
 </body>
