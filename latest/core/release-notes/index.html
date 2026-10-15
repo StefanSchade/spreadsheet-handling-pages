@@ -438,42 +438,800 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1><code>spreadsheet-handling</code> Release Notes</h1>
 <div class="details">
-<span id="revnumber">version v0.2.1,</span>
-<span id="revdate">2026-06-24T11:52:36+00:00</span>
-<br><span id="revremark">6b83df1</span>
+<span id="revnumber">version v0.2.2,</span>
+<span id="revdate">2026-10-15T15:59:49+00:00</span>
+<br><span id="revremark">887dd397</span>
 </div>
 <div id="toc" class="toc">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_0_2_1_released">1. 0.2.1 (released)</a>
+<li><a href="#_0_2_2planned">1. 0.2.2&#8201;&#8212;&#8201;planned</a></li>
+<li><a href="#_0_2_1_released">2. 0.2.1 (released)</a>
 <ul class="sectlevel2">
-<li><a href="#_functional_model_project_memory_and_reset_direction">1.1. Functional Model, Project Memory, and reset direction</a></li>
-<li><a href="#_spreadsheet_backends_and_roundtrip_behavior">1.2. Spreadsheet backends and roundtrip behavior</a></li>
-<li><a href="#_pipeline_steps_and_role_based_projection">1.3. Pipeline steps and role-based projection</a></li>
-<li><a href="#_schema_maintenance_cli">1.4. Schema maintenance CLI</a></li>
-<li><a href="#_cli_surface_cleanup">1.5. CLI surface cleanup</a></li>
-<li><a href="#_known_limitations">1.6. Known limitations</a></li>
+<li><a href="#_functional_model_project_memory_and_reset_direction">2.1. Functional Model, Project Memory, and reset direction</a></li>
+<li><a href="#_spreadsheet_backends_and_roundtrip_behavior">2.2. Spreadsheet backends and roundtrip behavior</a></li>
+<li><a href="#_pipeline_steps_and_role_based_projection">2.3. Pipeline steps and role-based projection</a></li>
+<li><a href="#_schema_maintenance_cli">2.4. Schema maintenance CLI</a></li>
+<li><a href="#_cli_surface_cleanup">2.5. CLI surface cleanup</a></li>
+<li><a href="#_known_limitations">2.6. Known limitations</a></li>
 </ul>
 </li>
-<li><a href="#_0_2_0_released">2. 0.2.0 (released)</a>
+<li><a href="#_0_2_0_released">3. 0.2.0 (released)</a>
 <ul class="sectlevel2">
-<li><a href="#_highlights">2.1. Highlights</a></li>
-<li><a href="#_user_facing_changes">2.2. User-facing changes</a></li>
-<li><a href="#_transformation_and_pipeline_changes">2.3. Transformation and pipeline changes</a></li>
-<li><a href="#_spreadsheet_backends_and_roundtrip_behavior_2">2.4. Spreadsheet backends and roundtrip behavior</a></li>
-<li><a href="#_documentation_and_demo">2.5. Documentation and demo</a></li>
-<li><a href="#_migration_notes">2.6. Migration notes</a></li>
-<li><a href="#_internal_architecture_and_maintainability">2.7. Internal architecture and maintainability</a></li>
-<li><a href="#_known_limitations_2">2.8. Known limitations</a></li>
+<li><a href="#_highlights">3.1. Highlights</a></li>
+<li><a href="#_user_facing_changes">3.2. User-facing changes</a></li>
+<li><a href="#_transformation_and_pipeline_changes">3.3. Transformation and pipeline changes</a></li>
+<li><a href="#_spreadsheet_backends_and_roundtrip_behavior_2">3.4. Spreadsheet backends and roundtrip behavior</a></li>
+<li><a href="#_documentation_and_demo">3.5. Documentation and demo</a></li>
+<li><a href="#_migration_notes">3.6. Migration notes</a></li>
+<li><a href="#_internal_architecture_and_maintainability">3.7. Internal architecture and maintainability</a></li>
+<li><a href="#_known_limitations_2">3.8. Known limitations</a></li>
 </ul>
 </li>
-<li><a href="#_related_links">3. Related Links</a></li>
+<li><a href="#_related_links">4. Related Links</a></li>
 </ul>
 </div>
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_0_2_1_released">1. 0.2.1 (released)</h2>
+<h2 id="_0_2_2planned">1. 0.2.2&#8201;&#8212;&#8201;planned</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Maintenance and consumer-driven capability release on top of <code>v0.2.1</code>.
+It consolidates the framework work since June 2026 and includes fixes and
+generic pipeline capabilities exercised by external consumers.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>validate_references</code> gained two consumer-neutral frame-contract rules.
+<code>required_columns</code> (<code>frame</code>, <code>columns</code>, optional <code>exact: true</code>) reports a
+missing frame, missing columns and, when exact, unexpected columns; column
+order is not part of the contract. <code>non_empty</code> (<code>frame</code>, <code>columns</code>, optional <code>trimmed: true</code>) reports
+every missing, null or empty-string cell, with <code>trimmed</code> also text that has
+leading or trailing whitespace, and honours <code>when</code>. Both follow the
+step&#8217;s <code>mode</code> and report through the existing finding shape, so a consumer no
+longer needs a local checker for table shape. Found by a consumer repository
+that had re-implemented them next to the pipeline.</p>
+</li>
+<li>
+<p>Bug fix (<code>BUG-JSON-INGRESS-MISSING-IDENTITY-P4A</code>): JSON directory ingress
+now preserves Missing identity for explicit <code>null</code> values and structurally
+absent fields on supported pandas 2.x configurations instead of turning them
+into the literal strings <code>"None"</code> / <code>"nan"</code>. Missing values normalize to the
+existing empty-string representation, while legitimate domain strings
+<code>"None"</code> and <code>"nan"</code> remain unchanged. The corrected behaviour is also
+verified against pandas 3.x.</p>
+</li>
+<li>
+<p>Declarative <code>primary_key</code> / <code>foreign_key</code> validation and graph endpoint
+resolution now use category-aware relation-key identity. Strings compare
+exactly (including whitespace); Number/String and Boolean/Number pairs do
+not match; integral numeric carriers such as <code>1</code>, <code>1.0</code>, and
+<code>numpy.int64(1)</code> match; and Missing values never participate in relation
+resolution or primary-key duplicate identity. Graph <code>unique_edges</code> and
+reference <code>unique_reference</code> retain their existing generic tuple-uniqueness
+behavior. This is a bounded relation-key rule, not general scalar
+normalization.</p>
+</li>
+<li>
+<p>Lookup enrichment, duplicate-key detection, and helper-mismatch verification
+now use category-aware relation-key identity. Strings compare exactly
+(including whitespace); Number/String and Boolean/Number pairs do not match;
+and integral numeric carriers such as <code>1</code>, <code>1.0</code>, and <code>numpy.int64(1)</code> match.
+Missing values never resolve or count as duplicate lookup keys, and mixed
+pandas key dtypes now follow Lookup&#8217;s configured missing-key policy instead
+of raising a pandas dtype error. This is a bounded Lookup rule, not general
+scalar normalization.</p>
+</li>
+<li>
+<p>FK helper enrichment and validation now use category-aware relation-key
+identity: Strings compare exactly (including whitespace), Number/String and
+Boolean/Number pairs do not match, and integral numeric carriers such as
+<code>1</code>, <code>1.0</code>, and <code>numpy.int64(1)</code> match. Missing values never resolve or
+count as duplicate IDs; the literal String <code>"nan"</code> remains an ordinary
+duplicate-able key. This is a bounded FK rule, not general scalar
+normalization.</p>
+</li>
+<li>
+<p>Workflow Coordinator prompts now include one mandatory, reviewed
+Coordinator-owned agent operating contract admitted before Run creation and
+recorded with bounded provenance in operator-plan evidence.</p>
+</li>
+<li>
+<p>Workflow Coordinator repository policies now use the strict version 3
+surface: consumer-owned <code>evidence_commands</code> definitions replace
+<code>evidence_states</code> and the former in-code command registry. Version 1 and 2
+repository policies are rejected with a migration-required diagnostic; no
+backward-compatibility reader or migration machinery is provided.</p>
+</li>
+<li>
+<p>Bug fix: FK validation no longer emits false <code>unresolvable_fk</code> or
+<code>value_mismatch</code> findings for Missing source FKs (<code>None</code>, <code>""</code>, NaN,
+<code>pd.NA</code>, or <code>NaT</code>). The literal string <code>"nan"</code> remains an ordinary FK value
+and is reported as <code>unresolvable_fk</code> when it does not resolve.</p>
+</li>
+<li>
+<p>Opt-in less-trusted pipeline-description authorization
+(<code>FTR-TRUSTED-INGRESS-P4A</code>, Phase-E slice E7; implementation awaiting fresh
+independent review): trusted Python callers can supply a
+<code>LessTrustedDescriptionAuthorization</code> to <code>build_steps_from_config</code>,
+<code>build_steps_from_yaml</code>, or <code>run_app</code>. Its closed policy grammar grants exact
+registered step names, exact canonical plugin targets, and exact writer
+roots, with the resource-specific restrictions documented by the FTR.
+Omitting the keyword retains the existing trusted-description behavior, so
+current configurations require no migration. <code>run_app</code> applies E7 only while
+constructing <code>AppConfig.pipeline</code>; <code>AppConfig.io</code> remains trusted-operator-
+owned. Authorized plugins remain trusted same-process Python under their
+complete argument contract: this is not a Python sandbox. The initial
+<code>sheets-run</code> CLI does not advertise less-trusted YAML protection.</p>
+</li>
+<li>
+<p>Asymmetric lookup join keys
+(<code>FTR-XREF-LOOKUP-HELPER-SUBSTITUTION-P4A2</code> Slice 1): <code>add_lookup_helpers</code>
+(<code>enrich_lookup</code>) gains an opt-in <code>source_key</code>/<code>lookup_key</code> parameter pair
+that joins a source-side key against a differently named lookup-side key
+(e.g. source <code>story_id</code> against lookup <code>id</code>). The pair is mutually exclusive
+with the symmetric <code>key</code>/<code>keys</code>/<code>"on"</code> forms and both halves are required
+together. Only the source key appears in the output frame; the lookup key
+never leaks, and <code>helper_position: before_key</code> anchors on the source key. All
+existing symmetric behaviour — values, columns, ordering, diagnostics,
+provenance, and errors — is unchanged; the asymmetric provenance additively
+records the distinct <code>source_key</code>/<code>lookup_key</code> instead of a synthetic common
+key. An explicit <code>source_key</code>/<code>lookup_key</code> pair is authoritative for join-key
+selection: it ignores a configured helper-policy <code>key</code> while still consuming
+the policy&#8217;s non-key settings (helper <code>fields</code>, <code>allowed</code> fields, <code>order</code>,
+<code>missing</code> behaviour, and helper value mode), and it keeps the asymmetric
+provenance shape even when the two key names are equal. A requested helper or
+temporary sort field that collides with the source key or the lookup key is
+rejected with a clear domain error before projection, so the source key is
+never overwritten and the lookup key never leaks in either values or formula
+mode. This collision safety follows the selected asymmetric mode even when the
+two key names are equal (an explicit asymmetric key cannot also be requested
+as a helper), while sorting the output by that key stays valid and legacy
+symmetric behaviour is unchanged. Requesting the same helper column twice is
+rejected with a clear domain error before projection (a generic guard for both
+modes) so output labels and helper provenance stay unambiguous.
+<code>apply_derived_column_policy</code> mismatch policies (<code>warn_on_mismatch</code> /
+<code>fail_on_mismatch</code>) now value-check asymmetric helpers by keying the payload
+on <code>source_key</code> and the lookup frame on <code>lookup_key</code>; they fail closed on
+invalid mismatch provenance. The join-key form is selected from mapping-member
+presence rather than value truthiness, so a present record with no key form,
+an explicitly <code>null</code> member, a partial, mixed, blank, or wrong-typed key all
+raise a clear error naming the metadata path; a named key column absent from
+the payload or lookup frame yields a severity-appropriate inability-to-verify
+finding instead of a silent pass; and <code>policy: drop</code> stays value-blind. This is a
+backend-neutral domain-lookup capability; it was subsequently bound across the
+persistence boundary, migrated into the worldbuilding pipelines, and used to
+retire <code>project_by_role</code> in the later slices recorded below.</p>
+</li>
+<li>
+<p>Durable inbound helper binding
+(<code>FTR-XREF-LOOKUP-HELPER-SUBSTITUTION-P4A2</code> Slice 2): settles the public
+inbound sequence that lets <code>apply_derived_column_policy(policy: drop)</code> remove
+a read-only display helper (such as <code>title</code>) before the XRef inverse, using
+only existing steps (no new runtime capability). The durable carrier is
+<code>_meta.sheets.&lt;visible-sheet&gt;.helper_columns</code> written by
+<code>configure_workbook_view</code>; the transient <code>_meta.derived</code> provenance is pruned
+at the persistence boundary. Cleanup must run <strong>by the visible sheet name
+before</strong> <code>apply_workbook_view_sheet_mappings</code>, because that mapping re-keys
+frames but not <code>_meta.sheets</code>; logical-frame cleanup after mapping leaves the
+helper unclassified and the inverse would melt it. An edited read-only helper
+is discarded under value-blind <code>drop</code>, never melted or written back. The
+optional <code>validate_references</code> / <code>no_helper_columns</code> postcondition is
+<strong>declaration-bound</strong>: it and the cleanup read the same
+<code>_meta.sheets.&lt;visible-sheet&gt;.helper_columns</code>, so it catches an omitted or
+ineffective cleanup that leaves a <strong>declared</strong> helper behind, but it cannot
+detect a <strong>missing</strong> declaration (with no declaration both cleanup and guard see
+no helper and pass while the helper survives). A column name is never inferred;
+verifying that each Workbook View sheet declares its display helper is a
+consumer-owned static check (Slice 3 for the Worldbuilding matrix sheets). See
+the "Removing a read-only display helper before the inverse" section of the
+supporting-steps user guide.</p>
+</li>
+<li>
+<p>Retired the <code>project_by_role</code> pipeline step
+(<code>FTR-XREF-LOOKUP-HELPER-SUBSTITUTION-P4A2</code> Slice 4). <strong>Breaking public-step
+removal.</strong> After the Worldbuilding consumers migrated (Slice 3), the role-based
+projection step, its registration, its <code>pipeline_step_registry.json</code> and
+<code>implementation_units.json</code> records, and its four dedicated tests were
+removed. The read-only display-helper behaviour it provided is fully
+reproduced by the explicit lookup/helper composition: outbound
+<code>add_lookup_helpers</code> with <code>helper_position: before_key</code>, and inbound
+<code>apply_derived_column_policy(policy: drop)</code> bound to the durable
+<code>_meta.sheets.&lt;visible-sheet&gt;.helper_columns</code> carrier before the XRef inverse.
+There is no deprecated wrapper, alias, or hidden fallback; a pipeline still
+configuring <code>step: project_by_role</code> now fails with the normal unknown-step
+diagnostic. <strong>Migration:</strong> replace any <code>project_by_role</code> usage with the
+composition above (see Slice 1/2 entries and the supporting-steps user guide).
+The shared column-role resolver (<code>spreadsheet_handling.domain.column_roles</code>)
+and the foundation role taxonomy (<code>row_identity</code>, <code>display_helper</code>,
+<code>matrix_value</code>) are <strong>retained</strong> — they remain the source of truth for
+role-targeted <code>add_validations</code>.</p>
+</li>
+<li>
+<p>Flat one-level XRef axis-label projection
+(<code>FTR-XREF-AXIS-MAPPINGS-P4A2</code> Slice 2): two new opt-in pipeline steps,
+<code>project_axis_labels</code> (outbound) and <code>restore_axis_keys</code> (inbound), swap a
+relation&#8217;s axis-identity column (default <code>column_key</code>) between stable
+canonical keys and readable flat one-level visible labels, composed <strong>around</strong>
+unchanged <code>contract_xref</code> / <code>expand_xref</code>. The key/label bijection is resolved
+on every run from a live source frame (<code>source_frame</code> + <code>key_column</code><br>
+<code>label_column</code>) via the reviewed Slice 1 resolver; nothing is persisted, and
+an absent source frame fails rather than trusting stale or visible text. A
+canonical key missing from the mapping (outbound) or an unresolvable visible
+label (inbound) fails before any output is published; input frames and <code>_meta</code>
+are never mutated. Flat-string XLSX and ODS matrices round-trip with no
+carrier or XRef change. Hierarchical (tuple) labels and grouped multi-row
+headers remain later slices. Opt-in: existing flat XRef pipelines are
+unaffected.</p>
+</li>
+<li>
+<p>Grouped XRef composites
+(<code>FTR-XREF-AXIS-MAPPINGS-P4A2</code> GX-2): two new opt-in pipeline steps,
+<code>contract_grouped_xref</code> and <code>expand_grouped_xref</code>, project a canonical relation
+onto a <strong>grouped</strong> matrix whose dynamic column headers carry multi-level visible
+label <strong>tuples</strong> and restore it exactly, composing <strong>unchanged</strong> <code>contract_xref</code> /
+<code>expand_xref</code> with the reviewed grouped-header projection. The forward step
+publishes a <code>GroupedMatrix</code> — an internal domain carrier bundling the flat
+canonical matrix with its grouped-header descriptor; the inverse reads that
+carrier back. Raw carrier construction is rejected; the public
+<code>grouped_matrix_from_canonical</code> factory and the inverse both prove that the
+current canonical flat column schema projects to the exact carried descriptor,
+so reordered/moved/stale/altered headers fail before values can be assigned to
+different canonical keys. The arity-N key/tuple bijection is resolved on every
+run from a live source frame (<code>source_frame</code> + <code>key_column</code> + <code>label_columns</code>)
+via the Slice 1 resolver; nothing is persisted. <code>xref_config_id</code> selects the
+unchanged XRef metadata identity, while YAML <code>name</code> remains the pipeline step
+name. One-shot <code>row_keys</code> iterables are owned once and safely reused. Opt-in:
+existing flat and grouped-free XRef pipelines are unaffected.</p>
+</li>
+<li>
+<p>Grouped XRef workbook carriers
+(<code>FTR-XREF-AXIS-MAPPINGS-P4A2</code> GX-3b/GX-4): grouped matrices are now workbook
+carriers for <strong>both XLSX and ODS</strong>. A <code>GroupedMatrix</code> composes into an exact,
+lossless multi-row header grid (repeated literal labels, no reliance on merge
+geometry); reading it back with the opt-in configured-depth exact-header gate
+(<code>exact_header_depths</code>, per sheet, on the XLSX and ODS readers) yields a
+backend-neutral exact table that the new <code>reconstruct_grouped_matrix</code> pipeline
+step turns back into a validated <code>GroupedMatrix</code> under one live axis mapping,
+ready for the unchanged <code>expand_grouped_xref</code>. The exact read overrides
+merge-based header inference, captures every physical header cell verbatim
+(merged masters resolved, blanks preserved, no <code>" / "</code> join/split), and begins
+data directly below the configured depth. Opt-in: without the gate every read
+is byte-identical to before.</p>
+</li>
+<li>
+<p>Grouped XRef workbook adoption through the public render path
+(<code>FTR-XREF-AXIS-MAPPINGS-P4A2</code> GX-5): the already-accepted grouped workbook
+carrier is now reachable through the public configuration surface. An explicit
+<code>configure_workbook_view</code> sheet selection accepts a <code>GroupedMatrix</code> (preserved
+by identity) alongside ordinary DataFrames for inclusion, declaration order,
+and physical sheet rename; column-targeted sheet options (<code>helper_columns</code>,
+<code>editable_columns</code>, protection, generic options) are rejected for a grouped
+sheet because grouped identity is the full visible tuple. The router-facing
+<code>save_xlsx</code> / <code>save_ods</code> savers preserve a <code>GroupedMatrix</code> through to the
+render path instead of coercing it, while every other value keeps its existing
+DataFrame coercion. On readback, Workbook View sheet mapping now counts a
+<code>core.ExactTable</code> (produced under the <code>exact_header_depths</code> gate) as a
+projected visible sheet, so <code>apply_workbook_view_sheet_mappings</code> re-keys it to
+its logical frame for the unchanged <code>reconstruct_grouped_matrix</code> &#8594;
+<code>expand_grouped_xref</code> chain. A pre-render grouped Workbook View validation
+failure publishes no output file and mutates neither caller frames nor <code>_meta</code>.
+Opt-in: no new step, type, or parameter; existing DataFrame Workbook Views and
+direct backend writes are unchanged.</p>
+</li>
+<li>
+<p>Legend Blocks canonical shape and <code>resolved</code> correction
+(<code>FTR-LEGEND-BLOCKS-RESOLVED-SHAPE-CORRECTION-P5</code>): <code><em>meta.legend_blocks</code> may
+still be <strong>authored</strong> as either a mapping or a list (list identity resolved from
+<code>name</code>, then <code>id</code>, then a positional <code>legend</em>&lt;n&gt;</code> fallback), but list form is
+now normalized once to the canonical insertion-ordered mapping at an internal
+<code>domain.ingress</code> boundary invoked automatically after orchestrator load and
+after the <code>bootstrap_meta</code> / <code>apply_overrides</code> config merges. Every domain,
+validation, render, persistence, and carrier consumer now sees mapping form
+only. An explicit <code>legend_blocks: null</code> is treated as an absent declaration
+and canonicalized to an empty mapping, so structured persistence cannot emit
+a null Legend Blocks root. The render-derived <code>resolved</code> placement facet is
+Resolution, never durable Intent: it is stripped at domain ingress, at the
+structured sidecar persistence boundary, and — newly — from canonical
+XLSX/ODS workbook readback after the parser has used it to classify the
+legend surface, so it can no longer transiently re-enter canonical <code>_meta</code>.
+A default-placement legend that lands on its own sheet no longer round-trips
+as an extra payload frame (XLSX and ODS parity). Compatibility: external list
+<strong>and</strong> mapping authoring remain accepted through the application/config path,
+but direct low-level calls (<code>run_pipeline</code>, a raw render, or a backend save)
+with list-form
+<code>legend_blocks</code> are no longer supported — such callers must supply canonical
+mapping form or invoke ingress explicitly. Every configuration-derived
+callable string&#8201;&#8212;&#8201;the public plugin step, direct colon-style <code>step:</code>
+factories, and nested string targets accepted by generic frames-first or
+builder-style binders&#8201;&#8212;&#8201;passes through one pipeline-local ownership check
+before import and rejects the framework-internal
+<code>spreadsheet_handling.domain.ingress</code> namespace. Direct Python callable
+targets and ordinary dotted-callable plugins/factories are unchanged. The
+<code>legend_blocks</code> meta-registry entry now names its full producer/consumer
+surface. Entry-value semantics are unchanged and remain owned by
+<code>FTR-LEGEND-BLOCKS-ENTRY-CONTRACT-P5</code>.</p>
+</li>
+<li>
+<p>Compact Multiaxis persistence correction: composed expand/contract runs no
+longer persist XRef metadata that names their deleted internal temporary
+relation. A legitimate caller-supplied prior XRef entry is restored exactly.
+<code>_meta.compact_multiaxis</code> remains persisted as a diagnostics-only trace; it is
+not inverse intent or configuration fallback, and it no longer blocks column
+schema maintenance. Sparse Defaults remains a separate explicit pipeline
+composition.</p>
+</li>
+<li>
+<p>Compact Multiaxis scoped recomposition
+(<code>FTR-COMPACT-MULTIAXIS-SCOPED-RECOMPOSITION-P4A</code>): <code>expand_compact_multiaxis</code>
+gains an optional <code>base_canonical_relation</code> parameter so a <strong>partial</strong>
+spreadsheet projection (a matrix and/or <code>value_columns</code> that expose only a
+subset of a larger relation) can be reimported without losing rows outside the
+visible scope. The composite Cell-Codec-encodes the named <strong>canonical</strong> base
+relation to the compact relation shape XRef expects, passes it through the
+wrapped <code>expand_xref</code> as its <code>base_relation</code> (in-scope matrix addresses
+replace — or, when cleared, delete — exactly the visible scope; out-of-scope
+base rows are preserved), then decodes the merged result. No parallel merge
+logic is added; replacement, deletion, and ordering stay XRef-owned. The
+parameter is opt-in and names the pre-codec canonical shape, distinct from the
+compact-shaped <code>expand_xref</code> <code>base_relation</code>; omitting it reproduces the
+previous full-replacement behavior, so existing full-matrix pipelines are
+unaffected. The intermediate encoded base is an internal temporary frame that
+never leaks into returned or persisted metadata.</p>
+</li>
+<li>
+<p>Carrier-neutral final domain cleanup
+(<code>FTR-META-ONTOLOGY-REMOVAL-WORKBOOK-PROJECTION-EPIC-P4A</code>, first slice):
+pipelines can now remove redundant logical frames before persistence so
+that every output adapter — JSON/YAML/XML/CSV directories and XLSX/ODS
+workbooks — observes the same cleaned frame set. A new
+<code>configure_pipeline_cleanup</code> step declares either <code>drop_frames</code> (frames to
+remove) or <code>keep_frames</code> (final frame set to retain; mutually exclusive
+modes, contradictions fail). <code>expand_xref</code> / <code>contract_xref</code> gain an
+explicit <code>drop_source</code> parameter that marks the superseded source frame
+for cleanup. The orchestrator executes and consumes these commands
+implicitly between the configured steps and the persistence boundary;
+commands never persist or roundtrip. A frame targeted by an explicit drop
+command while explicitly mapped by <code>workbook_view</code> fails before anything is
+written.
+Known limitation: artifacts written by mid-pipeline steps
+(<code>write_structured_yaml</code>, <code>write_key_value_resources</code>) are emitted before
+the cleanup boundary and reflect the earlier uncleaned state.</p>
+</li>
+<li>
+<p>Cleanup/Workbook-View conflict refinement: only explicitly drop-commanded
+frames conflict with an explicit <code>workbook_view</code> mapping. Keep-mode
+<strong>implied</strong> removals coexist with (possibly reimported, stale) view
+mappings, so reverse pipelines can retain a canonical frame subset from a
+workbook whose persisted view still maps the discarded view frames; the
+spreadsheet renderer still fails loudly if such a workbook were written
+again with a mapped frame missing.</p>
+</li>
+<li>
+<p><code>_meta.workbook_view.sheet_mappings</code> entries are now frame-only
+(<code>sheet</code> + <code>frame</code>). The derived <code>canonical_frame</code> key is no longer
+produced; legacy persisted mappings that carry it are ignored on read.
+Schema maintenance (<code>sheets-schema-maintain</code>) now routes sheet-scoped
+column references to the frame actually mapped to the sheet
+(frame-only resolution): renaming a column of a projection&#8217;s <strong>source</strong>
+frame no longer updates constraints or sheet options that target the
+projection&#8217;s sheet. The projection/source relationship remains
+feature-local transformation knowledge (for example <code>xref_crosstable</code>
+intent), not generic mapping identity.</p>
+</li>
+<li>
+<p>Generic frame lifecycle/render ontology has been removed. Rendering now
+selects every remaining logical frame when no explicit
+<code>workbook_view.sheets</code> list exists; an explicit list is authoritative for
+selection, names, and order. <code>configure_workbook_view</code> no longer accepts or
+writes lifecycle/render-policy knobs (<code>mode</code>, <code>drop_redundant_data</code>,
+<code>unknown_frame_policy</code>, debug/role inclusion controls, or sheet lifecycle
+fields). Generic lifecycle writes were removed from extraction, join,
+pivot, compact-multiaxis, lookup-enrichment, and Workbook View producers;
+legacy <code>frame_lifecycle</code> payloads are ignored and stripped at persistence.
+Schema maintenance no longer treats <code>canonical_frame</code> as a generic frame
+reference. Feature-local inverse contracts and FK relation
+<code>produced_by</code> conflict identity remain unchanged.</p>
+</li>
+<li>
+<p>XRef projection family (<code>expand_xref</code> / <code>contract_xref</code>): persisted
+<code>_meta.xref_crosstable</code> entries now carry only the minimal inverse intent
+(<code>relation</code>, <code>matrix</code>, <code>row_keys</code>, <code>dense_axes</code> intent); the descriptive
+<code>operation</code>, <code>column_key</code>, <code>value</code>, and <code>drop_empty</code> fields are no longer
+written (legacy payloads are tolerated). Intent lookup by frame name now
+fails explicitly when multiple entries match instead of silently using
+the first — in the transformations, in sparse-default targeting, and in
+column-role resolution (pass explicit <code>key_columns</code> to disambiguate).
+<code>drop_source</code> now rejects checkable value loss: a contraction over a
+relation with fields beyond <code>row_keys</code> + <code>column_key</code> + <code>value</code>, a
+contraction whose matrix columns do not cover every relation column key,
+or an expansion whose explicit <code>value_columns</code> leave matrix columns
+unexpanded. XRef roundtrip <strong>matrix-axis identities</strong> are now contractually
+<strong>unique, non-empty strings</strong> (carrier-stable across XLSX/ODS headers):
+numeric, missing, mixed-type, duplicate, or unhashable axis identities
+fail with explicit diagnostics on every axis-identity source — relation
+<code>column_key</code> values, explicit/metadata-derived/dense-derived
+<code>column_keys</code>, scoped <code>base_relation</code> identities, and the full physical
+matrix header row — before any cleanup command is recorded; explicit
+<code>value_columns</code> are validated as axis identities <strong>before</strong> the <code>row_keys</code>
+overlap check, so a missing (<code>pd.NA</code>), numeric, or array-valued selector
+now yields the XRef diagnostic instead of a raw pandas/NumPy error.
+<strong>Physical relation/<code>base_relation</code> column labels</strong> are a distinct, weaker
+boundary — non-missing, hashable, uniquely and deterministically
+comparable, and scalar-addressable, but <strong>not</strong> required to be strings:
+missing-like (<code>None</code>/<code>NaN</code>/<code>pd.NA</code>), ambiguous-equality, unhashable (for
+example a Python <code>list</code>), or duplicate physical labels are rejected before
+any output or cleanup (closing a case where duplicate <code>NaN</code>/<code>pd.NA</code> labels
+previously produced a <code>Series</code> cell and an unwanted cleanup command, and a
+deterministic unhashable label previously raised a raw <code>TypeError</code> inside
+pandas membership). Duplicate configured <code>row_keys</code> and <code>value_columns</code>
+overlapping <code>row_keys</code> fail the same way. Typed (non-string)
+<strong>matrix-axis</strong> identities were never carrier-stable and are explicitly
+unsupported; hierarchical/tuple <strong>physical</strong> labels remain future design
+work, neither promised across the operation surface nor prohibited by a
+global string-only rule. <code>sheets-schema-maintain</code> handles <code>_meta.xref_crosstable</code>
+with a dedicated checker that blocks renames/drops only for real XRef
+references (<code>row_keys</code> on the relation/matrix frames, matrix
+<code>column_keys</code> including stored <code>dense_axes.resolved.column_keys</code>
+snapshots, dense-axis keys); convention-style shapes inside the root no
+longer block, and real references no longer dangle silently.</p>
+</li>
+<li>
+<p>Cell Codec projection family (<code>encode_cell_values</code> /
+<code>decode_cell_values</code>): codec intent lives entirely in explicit step
+configuration; the <code>_meta.cell_codecs</code> family is retired (it had no
+runtime reader — legacy payloads in old sidecars/workbooks are ignored
+pass-through sediment, and <code>sheets-schema-maintain</code> no longer blocks on
+them). The string-oriented contract is enforced on the position-based
+path: numeric/boolean/date participating values fail explicitly instead
+of silently changing type; empty and missing values encode as the
+configured <code>absent_value</code> and decode to <code>""</code>. Declaration guards reject
+duplicate participating/group columns, duplicate physical labels,
+compact-column collisions, <code>absent_value</code> containing the separator, and
+decode collisions with existing columns. <code>split_tokens</code> serialization
+now rejects tokens containing the delimiter (previously producing cells
+that could not be decoded back to the same tokens). The user-guide
+section was corrected (actual modes are <code>whole_cell_code</code> /
+<code>split_tokens</code> with delimiter default <code>-</code>; the position-based
+<code>codec_intent</code> contract is now documented).</p>
+</li>
+<li>
+<p><code>sheets-schema-maintain</code> now maintains lookup-helper policy references in
+<code>_meta.helper_policies.lookup</code>: renaming a column of the lookup frame updates
+the policy&#8217;s <code>key</code>, <code>allowed_helpers</code>, <code>default_helpers</code>, and
+<code>order.sort_by</code> references, and dropping a column referenced by a lookup
+policy is blocked (prune included). Previously these references silently
+dangled after a rename or drop.</p>
+</li>
+<li>
+<p><code>sheets-schema-maintain</code> no longer silently ignores unmaintained
+<code>_meta.helper_policies</code> subtrees (anything other than <code>fk</code> and <code>lookup</code>):
+if such a subtree contains a structured frame+column reference to the
+affected column, rename/drop now blocks with a reported metadata reference
+instead of leaving the reference dangling.</p>
+</li>
+<li>
+<p>Bug fix (<code>BUG-ODS-XLOOKUP-FORMULA-INTEROP-P4A</code>): ODS formula-mode FK-helper
+and lookup-helper formulas (<code>helper_value_mode: formula</code>) previously opened
+as <code>#NAME?</code> in LibreOffice Calc even though the lookup references were
+valid, until each formula was manually reparsed through the Function
+Wizard. The ODS writer now serializes the lookup as LibreOffice&#8217;s
+extension-qualified <code>COM.MICROSOFT.XLOOKUP</code> rather than plain <code>XLOOKUP</code>
+(not part of the standard OpenFormula vocabulary), so generated formulas
+evaluate immediately&#8201;&#8212;&#8201;verified against LibreOffice 25.2.3.2, including
+live recalculation on a source FK edit and the configured missing-result
+behavior for an unknown key. XLSX formula rendering and both backends'
+<code>helper_value_mode: values</code> are unchanged. <code>values</code> remains the
+broader-compatibility fallback for LibreOffice versions without <code>XLOOKUP</code>
+support, but it does not update the displayed helper value live when the
+source FK is edited.</p>
+</li>
+<li>
+<p>Bug fix (<code>BUG-ODS-MISSING-CARRIER-LITERAL-NAN-RENDERING-P4A</code>): the ODS
+writer&#8217;s per-cell emptiness check was NaN-blind, so a real pandas/NumPy
+missing value reaching the renderer&#8201;&#8212;&#8201;e.g. a successful FK-helper
+lookup whose resolved target field is itself missing, or an ordinary
+blank cell loaded from a <code>csv_dir</code> source&#8201;&#8212;&#8201;was serialized as the
+literal text <code>"nan"</code> instead of an empty cell. Both cases now render (and
+reimport) as an empty cell on ODS, matching XLSX&#8217;s existing behavior. A
+legitimate domain value that is literally the string <code>"nan"</code> is
+unaffected and still round-trips as <code>"nan"</code>.</p>
+</li>
+<li>
+<p>Bug fix (<code>FTR-MINIMAL-INTERNAL-VALUE-MODEL-P4A</code> Slice 1, D2): the
+<code>csv_dir</code> directory-read ingress path applied pandas' default dtype
+inference and NaN handling instead of the string-preserving contract
+already used by the single-file CSV path, JSON, and YAML. A blank cell
+now loads as <code>""</code> rather than a pandas <code>NaN</code>, and a numeric-looking
+textual value such as <code>"007"</code> is no longer dtype-promoted to a number&#8201;&#8212;&#8201;it retains its exact textual representation, matching the already-
+established <code>csv_dir</code>/CSV/JSON/YAML ingress contract for every other
+format. This is the matching ingress-side fix for the same carrier-leak
+class the <code>BUG-ODS-MISSING-CARRIER-LITERAL-NAN-RENDERING-P4A</code> renderer-
+side fix above closes.</p>
+</li>
+<li>
+<p>Bug fix / new capability (<code>FTR-DATE-TIME-INTERNAL-VALUE-MODEL-P4A</code> D-T2):
+<code>save_yaml_dir</code> (<code>yaml_dir</code> output) and <code>write_json_dir</code>/<code>JSONBackend.write_multi</code>
+(<code>json_dir</code> output) previously raised <code>yaml.representer.RepresenterError</code>
+or <code>TypeError</code> for any <code>datetime.date</code>/<code>datetime.datetime</code>/<code>pandas.Timestamp</code>
+cell value, including a column loaded unmodified from a YAML file&#8217;s own
+native timestamp tags. Both now accept these values: YAML writes a native,
+unquoted <code>date</code>/<code>timestamp</code> scalar at microsecond precision (a missing
+temporal cell writes as <code>null</code>, matching the existing <code>datetime.date</code>
+convention); JSON writes reserved, single-key <code>{"$date": "&lt;ISO date&gt;"}</code> /
+<code>{"$datetime": "&lt;ISO datetime, offset suffix iff aware&gt;"}</code> envelopes at
+microsecond precision (a missing temporal cell writes as <code>""</code>, matching
+every other column&#8217;s existing Missing convention). Timezone awareness and
+the exact numeric UTC offset are preserved; named/IANA timezone identity
+and <code>pandas.Timestamp</code>-vs-<code>datetime.datetime</code> carrier identity are not.
+<code>read_json_dir</code>/<code>JSONBackend.read_multi</code> is deliberately unchanged for
+this slice: a <code>$date</code>/<code>$datetime</code> envelope written by <code>write_json_dir</code>
+reads back as a plain string, not a native temporal value.</p>
+</li>
+<li>
+<p>Breaking change (<code>FTR-XREF-PHYSICAL-LABEL-METADATA-AUTHORITY-P4A</code>):
+<code>contract_xref</code>/<code>expand_xref&#8217;s `row_keys</code> and dense-axis
+<code>rows_from</code>/<code>columns_from</code> <code>key</code>/<code>keys</code> selectors&#8201;&#8212;&#8201;including the
+inherited Compact Multiaxis forwarding trace&#8201;&#8212;&#8201;must now be an exact,
+non-empty native <code>str</code> (<code>type(value) is str and value != ""</code>; no
+coercion or stringification). This retires the previously published or
+mechanically-accepted non-string selector (numeric, boolean,
+date/datetime, NumPy/pandas scalar variants, <code>bytes</code>, <code>complex</code>,
+<code>frozenset</code>, a stable custom hashable/comparable object, a <code>str</code>
+subclass, or <code>numpy.str_</code>) for this specific nominated-selector role only:
+only a <code>str</code> physical column label reloads under the identical name on
+every currently maintained frame-plus-metadata carrier (JSON directory,
+XLSX, ODS). A numeric selector, for example, previously worked
+in-process but silently broke a later lookup after any of these carrier
+round trips, because the referenced physical column itself retypes on
+reload even though the persisted metadata copy does not. Non-string
+physical DataFrame columns remain fully legal everywhere they are not
+nominated as a <code>row_keys</code>/dense-axis selector (the general physical-label
+contract is unchanged); whitespace-only string selectors remain accepted.</p>
+</li>
+<li>
+<p>New capability / breaking change (<code>FTR-TRUSTED-INGRESS-P4A</code>, Phase-E slice
+E3&#8201;&#8212;&#8201;metadata substrate admission): every maintained external-to-Domain
+<code>_meta</code> boundary (initial framework ingress, <code>bootstrap_meta</code>,
+<code>apply_overrides</code>) now enforces a bounded metadata substrate grammar after
+Legend Blocks' own shape normalization: <code>_meta</code> is either absent/<code>None</code>, or
+an exact <code>dict</code> whose recursive ordinary containers are exact <code>dict</code>/<code>list</code>,
+whose dict keys are exact <code>str</code> with no exceptions, and whose leaves are an
+E1-admitted ordinary Scalar (string, boolean, number, date, datetime, or a
+recognized missing carrier). A shared acyclic alias (the same nested
+object reachable from two independent branches) is permitted; a self- or
+indirect cycle is rejected. Legend Blocks' complete normalized output is
+checked by this same walker, so an out-of-grammar node cannot escape by
+virtue of coming from a delegate. Rejection is atomic and non-mutating: a
+violation anywhere in the tree leaves the caller&#8217;s <code>_meta</code> object graph
+completely unchanged and aborts before any pipeline step, cleanup, or
+saver runs.</p>
+<div class="paragraph">
+<p>Two carrier-reachable but never-semantically-supported shapes are narrowed as
+part of this slice, both previously silently tolerated by the retained
+legacy-read paths with no prior compatibility disposition:</p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><strong>YAML directory metadata sidecar (Option A).</strong> In a <code>yaml_dir</code> input, the
+file stem <code>_meta</code> is now reserved for framework metadata: at most one of
+<code>_meta.yaml</code>/<code>_meta.yml</code> may be present, it is safe-loaded and must be a
+mapping at its root, and it is placed directly at <code>Frames["_meta"]</code>&#8201;&#8212;&#8201;never materialized as an ordinary DataFrame sheet. Both spellings present,
+or a non-mapping (including empty-file) root, is rejected at the YAML
+backend/parse boundary with a clear error. <strong>Migration:</strong> a <code>yaml_dir</code>
+input that used <code>_meta.yaml</code>/<code>_meta.yml</code> as an ordinary data sheet (it was
+never a supported roundtrip contract&#8201;&#8212;&#8201;the existing YAML saver already
+skips writing a <code>_meta</code> sheet) must rename that file; a <code>yaml_dir</code> input
+that intends framework metadata must supply a plain mapping. The YAML
+saver continues to omit <code>_meta</code> on write; no new roundtrip promise is
+added.</p>
+</li>
+<li>
+<p><strong>Legacy Python-literal and YAML-tag special metadata values/keys.</strong> The
+legacy XLSX/ODS <code>workbook_meta_blob</code> <code>ast.literal_eval</code> fallback, and
+YAML&#8217;s <code>!!set</code>/<code>!!binary</code> tags reachable from an authored or structured
+<code>_meta.yaml</code> sidecar, can produce a <code>tuple</code>, <code>set</code>, <code>bytes</code>, or <code>complex</code>
+metadata value, or a non-<code>str</code> (<code>int</code>/<code>bool</code>/<code>float</code>/<code>None</code>/<code>tuple</code>)
+dictionary key. The legacy/YAML carrier parse itself is unchanged and
+still recovers the surrounding dict; E3 now deterministically rejects the
+specific unsupported node at its exact metadata path, with a safe
+diagnostic that never renders the rejected value or key. None of these
+shapes is silently coerced (no <code>str()</code>/<code>list()</code> conversion) or silently
+admitted. <strong>Migration:</strong> a workbook or metadata sidecar carrying one of
+these legacy/tagged shapes must be rewritten with an application-specific,
+meaning-aware replacement (e.g. a <code>set</code> as a <code>list</code>) before it can be
+re-ingested; ordinary metadata already limited to <code>dict</code>/<code>list</code>/<code>str</code>-key/
+Scalar shapes is unaffected.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>No existing maintained producer/consumer needed a compatibility exception:
+current XRef dense-axis metadata (<code>row_keys</code>, <code>dense_axes</code> <code>key</code>/<code>keys</code>,
+<code>resolved.row_identities</code>, and the Compact Multiaxis-forwarded <code>row_keys</code>
+copy) was already narrowed to exact non-empty <code>str</code> selectors by the
+independently accepted <code>FTR-XREF-PHYSICAL-LABEL-METADATA-AUTHORITY-P4A</code>
+(noted above) and passes this new substrate check unchanged, with no
+XRef-specific E3 exception. Family-level metadata semantics (Legend Blocks
+entry validity, XRef business rules, workbook-view shapes, and so on) remain
+exactly as validated by their own owning features; E3 only enforces the
+structural substrate, not per-family meaning.</p>
+</div>
+</li>
+<li>
+<p>Behavior change (<code>FTR-TRUSTED-INGRESS-P4A</code>, Phase-E slice E4&#8201;&#8212;&#8201;R1 finding
+scalarization): <code>validate_references</code> and <code>validate_graph&#8217;s warn-mode
+finding reports now emit only a Scalar-compatible `row_index</code> cell,
+unconditionally. A <code>pandas.MultiIndex</code> row index becomes a comma-joined
+diagnostic String (e.g. <code>"east, 1"</code>) instead of a raw Python <code>tuple</code>
+object. Any other row-index label that is neither an admitted Scalar
+carrier nor a <code>MultiIndex</code> tuple (reachable today because no row-index
+grammar is yet selected for arbitrary hashable DataFrame indexes) is
+replaced by the stable placeholder String <code>"&lt;unsupported row index&gt;"</code>
+rather than reaching the report cell as a raw object. An ordinary (default
+integer-indexed) <code>row_index</code> is unchanged and is not stringified.
+<strong>Migration:</strong> any consumer that inspected <code>row_index</code> on a finding and
+relied on it being a Python <code>tuple</code>, or on it being the original raw index
+object for a non-default index, must switch to parsing the String label
+instead; none of this was ever a documented contract, and the label is a
+diagnostic projection, not a reversible codec.</p>
+</li>
+<li>
+<p>New capability / breaking change (<code>FTR-TRUSTED-INGRESS-P4A</code>, Phase-E slice
+E5&#8201;&#8212;&#8201;framework-managed macro wiring): the single macro seam every
+router-backed entry point funnels through (<code>orchestrate</code>, and therefore
+<code>sheets-run</code>, <code>run_app</code>, the compatibility orchestrator shim,
+<code>sheets-schema-maintain</code>/<code>run_schema_maintenance</code>) now enforces the
+complete Trusted Ingress E1-E4 contract end to end, rather than only the
+metadata-substrate slice (E3) it already enforced. Two user-visible
+consequences:</p>
+<div class="openblock">
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Initial ordinary structural/Scalar admission is now wired in.</strong> A router-
+loaded top-level carrier that is not an ordinary <code>DataFrame</code>/<code>ExactTable</code>
+(e.g. a raw non-tabular value under a non-<code>_meta</code> key), a DataFrame whose
+physical columns fail the existing addressability contract, or any
+ordinary cell that is not one of the six admitted Scalar categories, is
+now rejected before the first configured step runs&#8201;&#8212;&#8201;previously this
+E1/E2 representation existed but was not reachable from the macro.
+<strong>Migration:</strong> none for conformant input; a payload that only worked
+because this check was unreachable must be corrected at the source.</p>
+</li>
+<li>
+<p><strong>A configured step&#8217;s returned candidate is now conservatively
+re-established when it is not an exact reviewed transition.</strong> Every step
+is classified against the closed, exact E4 transition set (the
+<code>add_lookup_helpers(helper_value_mode="formula")</code> FormulaSpec
+introduction, <code>contract_grouped_xref</code>/<code>reconstruct_grouped_matrix</code>
+GroupedMatrix introduction, their one admitted nested composition, both
+<code>expand_grouped_xref</code> reverse endpoints, and <code>write_artifact_manifest&#8217;s
+manifest role). A step outside that exact set&#8201;&#8212;&#8201;any built-in without an
+exact certificate, dotted-plugin step, or caller-supplied `BoundStep</code>,
+regardless of what it wraps&#8201;&#8212;&#8201;has its returned candidate pass ordinary
+re-establishment before the next step, final cleanup, or save; a
+candidate that cannot become ordinary (a surviving <code>FormulaSpec</code>,
+<code>GroupedMatrix</code>, or non-Scalar manifest cell) now raises before any later
+Domain processing or save runs. At final save, a <code>GroupedMatrix</code>/
+<code>LookupFormulaSpec</code> role may reach only an <code>xlsx</code>/<code>ods</code> output kind and
+the artifact-manifest <code>source_frames</code> role may reach a save only after
+whole-frame <code>_meta.pipeline_cleanup</code> removal of its frame; any other
+combination now raises
+<code>application.managed_pipeline.UnauthorizedControlledRoleAtSinkError</code>
+before the saver runs, instead of reaching an incapable adapter.
+<strong>Migration:</strong> a pipeline that relied on a non-formula-mode helper, a
+grouped/manifest role surviving to an unsupported output kind, or any
+other previously-unenforced uncertified-return shape must either drop the
+artifact manifest&#8217;s source frame via <code>configure_pipeline_cleanup</code> before
+save, target a FormulaSpec-capable sink (<code>xlsx</code>/<code>ods</code>), or otherwise
+ensure every configured step&#8217;s return is ordinary before it reaches the
+saver; the maintained FormulaHelper &#8594; GroupedMatrix &#8594; XLSX/ODS path and
+every other currently maintained flow are unaffected.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p><code>run_pipeline</code> itself remains unchanged and unwired: a caller invoking it
+directly (bypassing <code>orchestrate</code>) still receives no automatic ingress or
+re-establishment, exactly as before.</p>
+</div>
+</li>
+<li>
+<p>Safety/correctness narrowing&#8201;&#8212;&#8201;FK helper / DCP deletion authority
+(Derived Artifact / FK Helper Deletion Authority workstream): durable FK
+relation policy (<code>_meta.helper_policies.fk</code>) alone no longer authorizes
+physical deletion of an FK-attributed helper column, in either
+<code>remove_fk_helpers</code> or <code>apply_derived_column_policy</code>. Previously, a
+durable relation that merely <strong>named</strong> a column as a potential FK helper
+could cause that column to be dropped even without current evidence that
+this pipeline run actually produced it&#8201;&#8212;&#8201;risking deletion of a
+same-label foreign column a durable relation
+happened to also name. Deletion now requires current, truthful transient
+producer provenance (<code>_meta.derived.sheets.*.helper_columns</code>), unless
+another independently accepted deletion authority applies. <strong>Migration
+consequence:</strong> generic persistence prunes transient <code>_meta.derived</code>
+provenance at the persistence boundary, so after a reimport with no fresh
+helper-materialization pass in the same session, a durable FK relation
+that still names a helper column can no longer cause it to be dropped;
+the column survives with a non-raising diagnostic. The supported durable
+cleanup route for this case remains explicit Workbook-View
+<code>_meta.sheets[*].helper_columns</code> declaration (via
+<code>configure_workbook_view</code>), which a pipeline author declares
+deliberately and which is unaffected by this narrowing.</p>
+</li>
+<li>
+<p>Bug fixes&#8201;&#8212;&#8201;<code>apply_derived_column_policy</code> mismatch checking for
+<code>enrich_lookup</code> helpers (FK / Reference-Helper Domain-family hardening,
+F-002 Slice 2): two intentional, user-observable corrections to
+<code>warn_on_mismatch</code>/<code>fail_on_mismatch</code>.</p>
+<div class="openblock">
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Formula-mode helper mismatch checking is now correct.</strong> Previously, a
+<code>helper_value_mode="formula"</code> helper cell (a <code>LookupFormulaSpec</code>, not a
+copied scalar) was compared via <code>str(LookupFormulaSpec)</code> against the plain
+canonical lookup value&#8201;&#8212;&#8201;this essentially always mismatched, spuriously
+reporting <code>derived_value_mismatch</code> under <code>warn_on_mismatch</code> and always
+raising under <code>fail_on_mismatch</code>, for every correctly-enriched formula-mode
+row. Formula-mode cells are now compared structurally: the cell&#8217;s declared
+<code>(lookup_sheet, source_key_column, lookup_key_column, lookup_value_column)</code>
+identity against the relationship the provenance declares. A structural
+divergence is now reported under a new <code>rule_type</code>,
+<code>derived_formula_mismatch</code>, distinct from <code>derived_value_mismatch</code>; a
+structurally-correct formula cell now produces no finding. This
+combination never worked correctly before, so there is no valid prior
+state to preserve; treated as an explicit, evidenced bug fix, not a
+claim of zero compatibility risk. Comparison is per-cell (by the cell&#8217;s
+own runtime type), so a formula-mode column with one row manually
+overwritten by a literal value is checked as a scalar edit on that row
+alone. A multi-key symmetric <code>enrich_lookup</code> (<code>keys: [&#8230;&#8203;]</code> with more than
+one key) combined with a formula-mode helper cannot be structurally
+verified by the current single-key <code>LookupFormulaSpec</code> representation
+(a pre-existing, unrelated <code>enrich_lookup</code> write-path characteristic,
+unchanged by this fix) and is now reported as <code>unverifiable_enrich_lookup</code>
+rather than silently certified as structurally correct or incorrectly
+flagged.</p>
+</li>
+<li>
+<p><strong>Duplicate lookup keys are no longer silently tolerated.</strong> Previously, if
+the current lookup frame had duplicate rows on the join key(s) at
+mismatch-check time, <code>apply_derived_column_policy</code> picked the first
+matching row as canonical ("first occurrence wins") and certified
+mismatch results from it&#8201;&#8212;&#8201;an unowned tie-break with no counterpart in
+<code>enrich_lookup&#8217;s own contract, which instead rejects duplicate lookup
+keys outright at enrichment time. Duplicate lookup keys at mismatch-check
+time are now reported as `unverifiable_enrich_lookup</code> (a warning under
+<code>warn_on_mismatch</code>, a failure under <code>fail_on_mismatch</code>) instead of
+silently certifying a value from an arbitrary row. <strong>Migration:</strong> a
+pipeline that relied on the previous silent pass for a lookup frame that
+had gained duplicate keys after enrichment time now receives a finding (or
+a raise under <code>fail_on_mismatch</code>) instead; deduplicate the lookup frame,
+or reconcile provenance, before the mismatch-check step.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_0_2_1_released">2. 0.2.1 (released)</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>These notes describe the <code>0.2.1</code> release line on top of <code>v0.2.0</code>.
@@ -490,7 +1248,7 @@ Its purpose is to provide an installable PyPI anchor before larger internal
 domain/meta changes begin.</p>
 </div>
 <div class="sect2">
-<h3 id="_functional_model_project_memory_and_reset_direction">1.1. Functional Model, Project Memory, and reset direction</h3>
+<h3 id="_functional_model_project_memory_and_reset_direction">2.1. Functional Model, Project Memory, and reset direction</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -534,7 +1292,7 @@ implementation sediment.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_spreadsheet_backends_and_roundtrip_behavior">1.2. Spreadsheet backends and roundtrip behavior</h3>
+<h3 id="_spreadsheet_backends_and_roundtrip_behavior">2.2. Spreadsheet backends and roundtrip behavior</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -654,7 +1412,7 @@ follow-up FTRs. See <code>BUG-CROSS-CARRIER-META-ROUNDTRIP-P4A</code>.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_pipeline_steps_and_role_based_projection">1.3. Pipeline steps and role-based projection</h3>
+<h3 id="_pipeline_steps_and_role_based_projection">2.3. Pipeline steps and role-based projection</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -722,7 +1480,7 @@ re-run the forward pipeline once to re-bootstrap the durable v2 relation. See
 </div>
 </div>
 <div class="sect2">
-<h3 id="_schema_maintenance_cli">1.4. Schema maintenance CLI</h3>
+<h3 id="_schema_maintenance_cli">2.4. Schema maintenance CLI</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -756,7 +1514,7 @@ through unchanged.)</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_cli_surface_cleanup">1.5. CLI surface cleanup</h3>
+<h3 id="_cli_surface_cleanup">2.5. CLI surface cleanup</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -769,7 +1527,7 @@ maintained public CLI surface is now <code>sheets-run</code> plus the dedicated
 </div>
 </div>
 <div class="sect2">
-<h3 id="_known_limitations">1.6. Known limitations</h3>
+<h3 id="_known_limitations">2.6. Known limitations</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -778,9 +1536,10 @@ Numeric, boolean, and date/time values in workbook cells are read and written
 as text by both the XLSX and ODS backends; type information present in the
 carrier is not preserved by default. A JSON value such as
 <code>{"sequence_no": 1}</code> may therefore round-trip through a workbook as
-<code>{"sequence_no": "1"}</code>. Consumers that need typed roundtrip for specific
-columns should declare a codec through the <code>cell_codecs</code> workbook metadata
-family. The decision and documented migration paths are recorded in
+<code>{"sequence_no": "1"}</code>. Typed roundtrip is not configured through workbook
+metadata: there is no <code>cell_codecs</code> metadata family (it is retired), and the
+string substrate is intentional. The decision and documented migration paths
+are recorded in
 <code>ADR-VISIBLE-CELL-TYPING-STRING-SUBSTRATE</code>
 (<code>docs/technical_model/ch03_architecture_decisions/</code>); the closing of
 <code>FTR-VISIBLE-CELL-TYPING-STRATEGY-P5</code> is the explicit project-level
@@ -792,7 +1551,7 @@ position behind this behaviour.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_0_2_0_released">2. 0.2.0 (released)</h2>
+<h2 id="_0_2_0_released">3. 0.2.0 (released)</h2>
 <div class="sectionbody">
 <div class="paragraph">
 <p>These notes describe the intended <code>0.2.0</code> release line relative to
@@ -807,7 +1566,7 @@ careful early adopters who are willing to follow the documented migration
 notes.</p>
 </div>
 <div class="sect2">
-<h3 id="_highlights">2.1. Highlights</h3>
+<h3 id="_highlights">3.1. Highlights</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -856,7 +1615,7 @@ FK-helper contract review.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_user_facing_changes">2.2. User-facing changes</h3>
+<h3 id="_user_facing_changes">3.2. User-facing changes</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -895,7 +1654,7 @@ transient <code>_meta.derived</code> provenance.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_transformation_and_pipeline_changes">2.3. Transformation and pipeline changes</h3>
+<h3 id="_transformation_and_pipeline_changes">3.3. Transformation and pipeline changes</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -938,7 +1697,7 @@ otherwise reach canonical output.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_spreadsheet_backends_and_roundtrip_behavior_2">2.4. Spreadsheet backends and roundtrip behavior</h3>
+<h3 id="_spreadsheet_backends_and_roundtrip_behavior_2">3.4. Spreadsheet backends and roundtrip behavior</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -992,7 +1751,7 @@ from <code>spreadsheet_handling.io_backends.parser_limits</code>) instead of a r
 </div>
 </div>
 <div class="sect2">
-<h3 id="_documentation_and_demo">2.5. Documentation and demo</h3>
+<h3 id="_documentation_and_demo">3.5. Documentation and demo</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -1017,7 +1776,7 @@ without reading every historical FTR.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_migration_notes">2.6. Migration notes</h3>
+<h3 id="_migration_notes">3.6. Migration notes</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -1051,7 +1810,7 @@ longer the hidden authority inside primitive FK-helper execution.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_internal_architecture_and_maintainability">2.7. Internal architecture and maintainability</h3>
+<h3 id="_internal_architecture_and_maintainability">3.7. Internal architecture and maintainability</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -1080,7 +1839,7 @@ future refactors reintroduce primitive inference or stale registry wording.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_known_limitations_2">2.8. Known limitations</h3>
+<h3 id="_known_limitations_2">3.8. Known limitations</h3>
 <div class="ulist">
 <ul>
 <li>
@@ -1111,7 +1870,7 @@ edited workbooks.</p>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_related_links">3. Related Links</h2>
+<h2 id="_related_links">4. Related Links</h2>
 <div class="sectionbody">
 <div class="ulist">
 <ul>
@@ -1133,8 +1892,8 @@ user entry point</a></p>
 </div>
 <div id="footer">
 <div id="footer-text">
-Version v0.2.1<br>
-Last updated 2026-06-24 11:52:17 UTC
+Version v0.2.2<br>
+Last updated 2026-10-15 15:59:31 UTC
 </div>
 </div>
 </body>

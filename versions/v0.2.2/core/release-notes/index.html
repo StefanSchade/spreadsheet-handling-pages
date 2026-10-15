@@ -1,0 +1,1900 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 2.0.20">
+<title>spreadsheet-handling Release Notes</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<style>
+/*! Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
+/* Uncomment the following line when using as a custom stylesheet */
+/* @import "https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700"; */
+html{font-family:sans-serif;-webkit-text-size-adjust:100%}
+a{background:none}
+a:focus{outline:thin dotted}
+a:active,a:hover{outline:0}
+h1{font-size:2em;margin:.67em 0}
+b,strong{font-weight:bold}
+abbr{font-size:.9em}
+abbr[title]{cursor:help;border-bottom:1px dotted #dddddf;text-decoration:none}
+dfn{font-style:italic}
+hr{height:0}
+mark{background:#ff0;color:#000}
+code,kbd,pre,samp{font-family:monospace;font-size:1em}
+pre{white-space:pre-wrap}
+q{quotes:"\201C" "\201D" "\2018" "\2019"}
+small{font-size:80%}
+sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}
+sup{top:-.5em}
+sub{bottom:-.25em}
+img{border:0}
+svg:not(:root){overflow:hidden}
+figure{margin:0}
+audio,video{display:inline-block}
+audio:not([controls]){display:none;height:0}
+fieldset{border:1px solid silver;margin:0 2px;padding:.35em .625em .75em}
+legend{border:0;padding:0}
+button,input,select,textarea{font-family:inherit;font-size:100%;margin:0}
+button,input{line-height:normal}
+button,select{text-transform:none}
+button,html input[type=button],input[type=reset],input[type=submit]{-webkit-appearance:button;cursor:pointer}
+button[disabled],html input[disabled]{cursor:default}
+input[type=checkbox],input[type=radio]{padding:0}
+button::-moz-focus-inner,input::-moz-focus-inner{border:0;padding:0}
+textarea{overflow:auto;vertical-align:top}
+table{border-collapse:collapse;border-spacing:0}
+*,::before,::after{box-sizing:border-box}
+html,body{font-size:100%}
+body{background:#fff;color:rgba(0,0,0,.8);padding:0;margin:0;font-family:"Noto Serif","DejaVu Serif",serif;line-height:1;position:relative;cursor:auto;-moz-tab-size:4;-o-tab-size:4;tab-size:4;word-wrap:anywhere;-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased}
+a:hover{cursor:pointer}
+img,object,embed{max-width:100%;height:auto}
+object,embed{height:100%}
+img{-ms-interpolation-mode:bicubic}
+.left{float:left!important}
+.right{float:right!important}
+.text-left{text-align:left!important}
+.text-right{text-align:right!important}
+.text-center{text-align:center!important}
+.text-justify{text-align:justify!important}
+.hide{display:none}
+img,object,svg{display:inline-block;vertical-align:middle}
+textarea{height:auto;min-height:50px}
+select{width:100%}
+.subheader,.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{line-height:1.45;color:#7a2518;font-weight:400;margin-top:0;margin-bottom:.25em}
+div,dl,dt,dd,ul,ol,li,h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6,pre,form,p,blockquote,th,td{margin:0;padding:0}
+a{color:#2156a5;text-decoration:underline;line-height:inherit}
+a:hover,a:focus{color:#1d4b8f}
+a img{border:0}
+p{line-height:1.6;margin-bottom:1.25em;text-rendering:optimizeLegibility}
+p aside{font-size:.875em;line-height:1.35;font-style:italic}
+h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{font-family:"Open Sans","DejaVu Sans",sans-serif;font-weight:300;font-style:normal;color:#ba3925;text-rendering:optimizeLegibility;margin-top:1em;margin-bottom:.5em;line-height:1.0125em}
+h1 small,h2 small,h3 small,#toctitle small,.sidebarblock>.content>.title small,h4 small,h5 small,h6 small{font-size:60%;color:#e99b8f;line-height:0}
+h1{font-size:2.125em}
+h2{font-size:1.6875em}
+h3,#toctitle,.sidebarblock>.content>.title{font-size:1.375em}
+h4,h5{font-size:1.125em}
+h6{font-size:1em}
+hr{border:solid #dddddf;border-width:1px 0 0;clear:both;margin:1.25em 0 1.1875em}
+em,i{font-style:italic;line-height:inherit}
+strong,b{font-weight:bold;line-height:inherit}
+small{font-size:60%;line-height:inherit}
+code{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;font-weight:400;color:rgba(0,0,0,.9)}
+ul,ol,dl{line-height:1.6;margin-bottom:1.25em;list-style-position:outside;font-family:inherit}
+ul,ol{margin-left:1.5em}
+ul li ul,ul li ol{margin-left:1.25em;margin-bottom:0}
+ul.circle{list-style-type:circle}
+ul.disc{list-style-type:disc}
+ul.square{list-style-type:square}
+ul.circle ul:not([class]),ul.disc ul:not([class]),ul.square ul:not([class]){list-style:inherit}
+ol li ul,ol li ol{margin-left:1.25em;margin-bottom:0}
+dl dt{margin-bottom:.3125em;font-weight:bold}
+dl dd{margin-bottom:1.25em}
+blockquote{margin:0 0 1.25em;padding:.5625em 1.25em 0 1.1875em;border-left:1px solid #ddd}
+blockquote,blockquote p{line-height:1.6;color:rgba(0,0,0,.85)}
+@media screen and (min-width:768px){h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2}
+h1{font-size:2.75em}
+h2{font-size:2.3125em}
+h3,#toctitle,.sidebarblock>.content>.title{font-size:1.6875em}
+h4{font-size:1.4375em}}
+table{background:#fff;margin-bottom:1.25em;border:1px solid #dedede;word-wrap:normal}
+table thead,table tfoot{background:#f7f8f7}
+table thead tr th,table thead tr td,table tfoot tr th,table tfoot tr td{padding:.5em .625em .625em;font-size:inherit;color:rgba(0,0,0,.8);text-align:left}
+table tr th,table tr td{padding:.5625em .625em;font-size:inherit;color:rgba(0,0,0,.8)}
+table tr.even,table tr.alt{background:#f8f8f7}
+table thead tr th,table tfoot tr th,table tbody tr td,table tr td,table tfoot tr td{line-height:1.6}
+h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2;word-spacing:-.05em}
+h1 strong,h2 strong,h3 strong,#toctitle strong,.sidebarblock>.content>.title strong,h4 strong,h5 strong,h6 strong{font-weight:400}
+.center{margin-left:auto;margin-right:auto}
+.stretch{width:100%}
+.clearfix::before,.clearfix::after,.float-group::before,.float-group::after{content:" ";display:table}
+.clearfix::after,.float-group::after{clear:both}
+:not(pre).nobreak{word-wrap:normal}
+:not(pre).nowrap{white-space:nowrap}
+:not(pre).pre-wrap{white-space:pre-wrap}
+:not(pre):not([class^=L])>code{font-size:.9375em;font-style:normal!important;letter-spacing:0;padding:.1em .5ex;word-spacing:-.15em;background:#f7f7f8;border-radius:4px;line-height:1.45;text-rendering:optimizeSpeed}
+pre{color:rgba(0,0,0,.9);font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;line-height:1.45;text-rendering:optimizeSpeed}
+pre code,pre pre{color:inherit;font-size:inherit;line-height:inherit}
+pre>code{display:block}
+pre.nowrap,pre.nowrap pre{white-space:pre;word-wrap:normal}
+em em{font-style:normal}
+strong strong{font-weight:400}
+.keyseq{color:rgba(51,51,51,.8)}
+kbd{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;display:inline-block;color:rgba(0,0,0,.8);font-size:.65em;line-height:1.45;background:#f7f7f7;border:1px solid #ccc;border-radius:3px;box-shadow:0 1px 0 rgba(0,0,0,.2),inset 0 0 0 .1em #fff;margin:0 .15em;padding:.2em .5em;vertical-align:middle;position:relative;top:-.1em;white-space:nowrap}
+.keyseq kbd:first-child{margin-left:0}
+.keyseq kbd:last-child{margin-right:0}
+.menuseq,.menuref{color:#000}
+.menuseq b:not(.caret),.menuref{font-weight:inherit}
+.menuseq{word-spacing:-.02em}
+.menuseq b.caret{font-size:1.25em;line-height:.8}
+.menuseq i.caret{font-weight:bold;text-align:center;width:.45em}
+b.button::before,b.button::after{position:relative;top:-1px;font-weight:400}
+b.button::before{content:"[";padding:0 3px 0 2px}
+b.button::after{content:"]";padding:0 2px 0 3px}
+p a>code:hover{color:rgba(0,0,0,.9)}
+#header,#content,#footnotes,#footer{width:100%;margin:0 auto;max-width:62.5em;*zoom:1;position:relative;padding-left:.9375em;padding-right:.9375em}
+#header::before,#header::after,#content::before,#content::after,#footnotes::before,#footnotes::after,#footer::before,#footer::after{content:" ";display:table}
+#header::after,#content::after,#footnotes::after,#footer::after{clear:both}
+#content{margin-top:1.25em}
+#content::before{content:none}
+#header>h1:first-child{color:rgba(0,0,0,.85);margin-top:2.25rem;margin-bottom:0}
+#header>h1:first-child+#toc{margin-top:8px;border-top:1px solid #dddddf}
+#header>h1:only-child,body.toc2 #header>h1:nth-last-child(2){border-bottom:1px solid #dddddf;padding-bottom:8px}
+#header .details{border-bottom:1px solid #dddddf;line-height:1.45;padding-top:.25em;padding-bottom:.25em;padding-left:.25em;color:rgba(0,0,0,.6);display:flex;flex-flow:row wrap}
+#header .details span:first-child{margin-left:-.125em}
+#header .details span.email a{color:rgba(0,0,0,.85)}
+#header .details br{display:none}
+#header .details br+span::before{content:"\00a0\2013\00a0"}
+#header .details br+span.author::before{content:"\00a0\22c5\00a0";color:rgba(0,0,0,.85)}
+#header .details br+span#revremark::before{content:"\00a0|\00a0"}
+#header #revnumber{text-transform:capitalize}
+#header #revnumber::after{content:"\00a0"}
+#content>h1:first-child:not([class]){color:rgba(0,0,0,.85);border-bottom:1px solid #dddddf;padding-bottom:8px;margin-top:0;padding-top:1rem;margin-bottom:1.25rem}
+#toc{border-bottom:1px solid #e7e7e9;padding-bottom:.5em}
+#toc>ul{margin-left:.125em}
+#toc ul.sectlevel0>li>a{font-style:italic}
+#toc ul.sectlevel0 ul.sectlevel1{margin:.5em 0}
+#toc ul{font-family:"Open Sans","DejaVu Sans",sans-serif;list-style-type:none}
+#toc li{line-height:1.3334;margin-top:.3334em}
+#toc a{text-decoration:none}
+#toc a:active{text-decoration:underline}
+#toctitle{color:#7a2518;font-size:1.2em}
+@media screen and (min-width:768px){#toctitle{font-size:1.375em}
+body.toc2{padding-left:15em;padding-right:0}
+#toc.toc2{margin-top:0!important;background:#f8f8f7;position:fixed;width:15em;left:0;top:0;border-right:1px solid #e7e7e9;border-top-width:0!important;border-bottom-width:0!important;z-index:1000;padding:1.25em 1em;height:100%;overflow:auto}
+#toc.toc2 #toctitle{margin-top:0;margin-bottom:.8rem;font-size:1.2em}
+#toc.toc2>ul{font-size:.9em;margin-bottom:0}
+#toc.toc2 ul ul{margin-left:0;padding-left:1em}
+#toc.toc2 ul.sectlevel0 ul.sectlevel1{padding-left:0;margin-top:.5em;margin-bottom:.5em}
+body.toc2.toc-right{padding-left:0;padding-right:15em}
+body.toc2.toc-right #toc.toc2{border-right-width:0;border-left:1px solid #e7e7e9;left:auto;right:0}}
+@media screen and (min-width:1280px){body.toc2{padding-left:20em;padding-right:0}
+#toc.toc2{width:20em}
+#toc.toc2 #toctitle{font-size:1.375em}
+#toc.toc2>ul{font-size:.95em}
+#toc.toc2 ul ul{padding-left:1.25em}
+body.toc2.toc-right{padding-left:0;padding-right:20em}}
+#content #toc{border:1px solid #e0e0dc;margin-bottom:1.25em;padding:1.25em;background:#f8f8f7;border-radius:4px}
+#content #toc>:first-child{margin-top:0}
+#content #toc>:last-child{margin-bottom:0}
+#footer{max-width:none;background:rgba(0,0,0,.8);padding:1.25em}
+#footer-text{color:hsla(0,0%,100%,.8);line-height:1.44}
+#content{margin-bottom:.625em}
+.sect1{padding-bottom:.625em}
+@media screen and (min-width:768px){#content{margin-bottom:1.25em}
+.sect1{padding-bottom:1.25em}}
+.sect1:last-child{padding-bottom:0}
+.sect1+.sect1{border-top:1px solid #e7e7e9}
+#content h1>a.anchor,h2>a.anchor,h3>a.anchor,#toctitle>a.anchor,.sidebarblock>.content>.title>a.anchor,h4>a.anchor,h5>a.anchor,h6>a.anchor{position:absolute;z-index:1001;width:1.5ex;margin-left:-1.5ex;display:block;text-decoration:none!important;visibility:hidden;text-align:center;font-weight:400}
+#content h1>a.anchor::before,h2>a.anchor::before,h3>a.anchor::before,#toctitle>a.anchor::before,.sidebarblock>.content>.title>a.anchor::before,h4>a.anchor::before,h5>a.anchor::before,h6>a.anchor::before{content:"\00A7";font-size:.85em;display:block;padding-top:.1em}
+#content h1:hover>a.anchor,#content h1>a.anchor:hover,h2:hover>a.anchor,h2>a.anchor:hover,h3:hover>a.anchor,#toctitle:hover>a.anchor,.sidebarblock>.content>.title:hover>a.anchor,h3>a.anchor:hover,#toctitle>a.anchor:hover,.sidebarblock>.content>.title>a.anchor:hover,h4:hover>a.anchor,h4>a.anchor:hover,h5:hover>a.anchor,h5>a.anchor:hover,h6:hover>a.anchor,h6>a.anchor:hover{visibility:visible}
+#content h1>a.link,h2>a.link,h3>a.link,#toctitle>a.link,.sidebarblock>.content>.title>a.link,h4>a.link,h5>a.link,h6>a.link{color:#ba3925;text-decoration:none}
+#content h1>a.link:hover,h2>a.link:hover,h3>a.link:hover,#toctitle>a.link:hover,.sidebarblock>.content>.title>a.link:hover,h4>a.link:hover,h5>a.link:hover,h6>a.link:hover{color:#a53221}
+details,.audioblock,.imageblock,.literalblock,.listingblock,.stemblock,.videoblock{margin-bottom:1.25em}
+details{margin-left:1.25rem}
+details>summary{cursor:pointer;display:block;position:relative;line-height:1.6;margin-bottom:.625rem;outline:none;-webkit-tap-highlight-color:transparent}
+details>summary::-webkit-details-marker{display:none}
+details>summary::before{content:"";border:solid transparent;border-left:solid;border-width:.3em 0 .3em .5em;position:absolute;top:.5em;left:-1.25rem;transform:translateX(15%)}
+details[open]>summary::before{border:solid transparent;border-top:solid;border-width:.5em .3em 0;transform:translateY(15%)}
+details>summary::after{content:"";width:1.25rem;height:1em;position:absolute;top:.3em;left:-1.25rem}
+.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{text-rendering:optimizeLegibility;text-align:left;font-family:"Noto Serif","DejaVu Serif",serif;font-size:1rem;font-style:italic}
+table.tableblock.fit-content>caption.title{white-space:nowrap;width:0}
+.paragraph.lead>p,#preamble>.sectionbody>[class=paragraph]:first-of-type p{font-size:1.21875em;line-height:1.6;color:rgba(0,0,0,.85)}
+.admonitionblock>table{border-collapse:separate;border:0;background:none;width:100%}
+.admonitionblock>table td.icon{text-align:center;width:80px}
+.admonitionblock>table td.icon img{max-width:none}
+.admonitionblock>table td.icon .title{font-weight:bold;font-family:"Open Sans","DejaVu Sans",sans-serif;text-transform:uppercase}
+.admonitionblock>table td.content{padding-left:1.125em;padding-right:1.25em;border-left:1px solid #dddddf;color:rgba(0,0,0,.6);word-wrap:anywhere}
+.admonitionblock>table td.content>:last-child>:last-child{margin-bottom:0}
+.exampleblock>.content{border:1px solid #e6e6e6;margin-bottom:1.25em;padding:1.25em;background:#fff;border-radius:4px}
+.sidebarblock{border:1px solid #dbdbd6;margin-bottom:1.25em;padding:1.25em;background:#f3f3f2;border-radius:4px}
+.sidebarblock>.content>.title{color:#7a2518;margin-top:0;text-align:center}
+.exampleblock>.content>:first-child,.sidebarblock>.content>:first-child{margin-top:0}
+.exampleblock>.content>:last-child,.exampleblock>.content>:last-child>:last-child,.exampleblock>.content .olist>ol>li:last-child>:last-child,.exampleblock>.content .ulist>ul>li:last-child>:last-child,.exampleblock>.content .qlist>ol>li:last-child>:last-child,.sidebarblock>.content>:last-child,.sidebarblock>.content>:last-child>:last-child,.sidebarblock>.content .olist>ol>li:last-child>:last-child,.sidebarblock>.content .ulist>ul>li:last-child>:last-child,.sidebarblock>.content .qlist>ol>li:last-child>:last-child{margin-bottom:0}
+.literalblock pre,.listingblock>.content>pre{border-radius:4px;overflow-x:auto;padding:1em;font-size:.8125em}
+@media screen and (min-width:768px){.literalblock pre,.listingblock>.content>pre{font-size:.90625em}}
+@media screen and (min-width:1280px){.literalblock pre,.listingblock>.content>pre{font-size:1em}}
+.literalblock pre,.listingblock>.content>pre:not(.highlight),.listingblock>.content>pre[class=highlight],.listingblock>.content>pre[class^="highlight "]{background:#f7f7f8}
+.literalblock.output pre{color:#f7f7f8;background:rgba(0,0,0,.9)}
+.listingblock>.content{position:relative}
+.listingblock code[data-lang]::before{display:none;content:attr(data-lang);position:absolute;font-size:.75em;top:.425rem;right:.5rem;line-height:1;text-transform:uppercase;color:inherit;opacity:.5}
+.listingblock:hover code[data-lang]::before{display:block}
+.listingblock.terminal pre .command::before{content:attr(data-prompt);padding-right:.5em;color:inherit;opacity:.5}
+.listingblock.terminal pre .command:not([data-prompt])::before{content:"$"}
+.listingblock pre.highlightjs{padding:0}
+.listingblock pre.highlightjs>code{padding:1em;border-radius:4px}
+.listingblock pre.prettyprint{border-width:0}
+.prettyprint{background:#f7f7f8}
+pre.prettyprint .linenums{line-height:1.45;margin-left:2em}
+pre.prettyprint li{background:none;list-style-type:inherit;padding-left:0}
+pre.prettyprint li code[data-lang]::before{opacity:1}
+pre.prettyprint li:not(:first-child) code[data-lang]::before{display:none}
+table.linenotable{border-collapse:separate;border:0;margin-bottom:0;background:none}
+table.linenotable td[class]{color:inherit;vertical-align:top;padding:0;line-height:inherit;white-space:normal}
+table.linenotable td.code{padding-left:.75em}
+table.linenotable td.linenos,pre.pygments .linenos{border-right:1px solid;opacity:.35;padding-right:.5em;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}
+pre.pygments span.linenos{display:inline-block;margin-right:.75em}
+.quoteblock{margin:0 1em 1.25em 1.5em;display:table}
+.quoteblock:not(.excerpt)>.title{margin-left:-1.5em;margin-bottom:.75em}
+.quoteblock blockquote,.quoteblock p{color:rgba(0,0,0,.85);font-size:1.15rem;line-height:1.75;word-spacing:.1em;letter-spacing:0;font-style:italic;text-align:justify}
+.quoteblock blockquote{margin:0;padding:0;border:0}
+.quoteblock blockquote::before{content:"\201c";float:left;font-size:2.75em;font-weight:bold;line-height:.6em;margin-left:-.6em;color:#7a2518;text-shadow:0 1px 2px rgba(0,0,0,.1)}
+.quoteblock blockquote>.paragraph:last-child p{margin-bottom:0}
+.quoteblock .attribution{margin-top:.75em;margin-right:.5ex;text-align:right}
+.verseblock{margin:0 1em 1.25em}
+.verseblock pre{font-family:"Open Sans","DejaVu Sans",sans-serif;font-size:1.15rem;color:rgba(0,0,0,.85);font-weight:300;text-rendering:optimizeLegibility}
+.verseblock pre strong{font-weight:400}
+.verseblock .attribution{margin-top:1.25rem;margin-left:.5ex}
+.quoteblock .attribution,.verseblock .attribution{font-size:.9375em;line-height:1.45;font-style:italic}
+.quoteblock .attribution br,.verseblock .attribution br{display:none}
+.quoteblock .attribution cite,.verseblock .attribution cite{display:block;letter-spacing:-.025em;color:rgba(0,0,0,.6)}
+.quoteblock.abstract blockquote::before,.quoteblock.excerpt blockquote::before,.quoteblock .quoteblock blockquote::before{display:none}
+.quoteblock.abstract blockquote,.quoteblock.abstract p,.quoteblock.excerpt blockquote,.quoteblock.excerpt p,.quoteblock .quoteblock blockquote,.quoteblock .quoteblock p{line-height:1.6;word-spacing:0}
+.quoteblock.abstract{margin:0 1em 1.25em;display:block}
+.quoteblock.abstract>.title{margin:0 0 .375em;font-size:1.15em;text-align:center}
+.quoteblock.excerpt>blockquote,.quoteblock .quoteblock{padding:0 0 .25em 1em;border-left:.25em solid #dddddf}
+.quoteblock.excerpt,.quoteblock .quoteblock{margin-left:0}
+.quoteblock.excerpt blockquote,.quoteblock.excerpt p,.quoteblock .quoteblock blockquote,.quoteblock .quoteblock p{color:inherit;font-size:1.0625rem}
+.quoteblock.excerpt .attribution,.quoteblock .quoteblock .attribution{color:inherit;font-size:.85rem;text-align:left;margin-right:0}
+p.tableblock:last-child{margin-bottom:0}
+td.tableblock>.content{margin-bottom:1.25em;word-wrap:anywhere}
+td.tableblock>.content>:last-child{margin-bottom:-1.25em}
+table.tableblock,th.tableblock,td.tableblock{border:0 solid #dedede}
+table.grid-all>*>tr>*{border-width:1px}
+table.grid-cols>*>tr>*{border-width:0 1px}
+table.grid-rows>*>tr>*{border-width:1px 0}
+table.frame-all{border-width:1px}
+table.frame-ends{border-width:1px 0}
+table.frame-sides{border-width:0 1px}
+table.frame-none>colgroup+*>:first-child>*,table.frame-sides>colgroup+*>:first-child>*{border-top-width:0}
+table.frame-none>:last-child>:last-child>*,table.frame-sides>:last-child>:last-child>*{border-bottom-width:0}
+table.frame-none>*>tr>:first-child,table.frame-ends>*>tr>:first-child{border-left-width:0}
+table.frame-none>*>tr>:last-child,table.frame-ends>*>tr>:last-child{border-right-width:0}
+table.stripes-all>*>tr,table.stripes-odd>*>tr:nth-of-type(odd),table.stripes-even>*>tr:nth-of-type(even),table.stripes-hover>*>tr:hover{background:#f8f8f7}
+th.halign-left,td.halign-left{text-align:left}
+th.halign-right,td.halign-right{text-align:right}
+th.halign-center,td.halign-center{text-align:center}
+th.valign-top,td.valign-top{vertical-align:top}
+th.valign-bottom,td.valign-bottom{vertical-align:bottom}
+th.valign-middle,td.valign-middle{vertical-align:middle}
+table thead th,table tfoot th{font-weight:bold}
+tbody tr th{background:#f7f8f7}
+tbody tr th,tbody tr th p,tfoot tr th,tfoot tr th p{color:rgba(0,0,0,.8);font-weight:bold}
+p.tableblock>code:only-child{background:none;padding:0}
+p.tableblock{font-size:1em}
+ol{margin-left:1.75em}
+ul li ol{margin-left:1.5em}
+dl dd{margin-left:1.125em}
+dl dd:last-child,dl dd:last-child>:last-child{margin-bottom:0}
+li p,ul dd,ol dd,.olist .olist,.ulist .ulist,.ulist .olist,.olist .ulist{margin-bottom:.625em}
+ul.checklist,ul.none,ol.none,ul.no-bullet,ol.no-bullet,ol.unnumbered,ul.unstyled,ol.unstyled{list-style-type:none}
+ul.no-bullet,ol.no-bullet,ol.unnumbered{margin-left:.625em}
+ul.unstyled,ol.unstyled{margin-left:0}
+li>p:empty:only-child::before{content:"";display:inline-block}
+ul.checklist>li>p:first-child{margin-left:-1em}
+ul.checklist>li>p:first-child>.fa-square-o:first-child,ul.checklist>li>p:first-child>.fa-check-square-o:first-child{width:1.25em;font-size:.8em;position:relative;bottom:.125em}
+ul.checklist>li>p:first-child>input[type=checkbox]:first-child{margin-right:.25em}
+ul.inline{display:flex;flex-flow:row wrap;list-style:none;margin:0 0 .625em -1.25em}
+ul.inline>li{margin-left:1.25em}
+.unstyled dl dt{font-weight:400;font-style:normal}
+ol.arabic{list-style-type:decimal}
+ol.decimal{list-style-type:decimal-leading-zero}
+ol.loweralpha{list-style-type:lower-alpha}
+ol.upperalpha{list-style-type:upper-alpha}
+ol.lowerroman{list-style-type:lower-roman}
+ol.upperroman{list-style-type:upper-roman}
+ol.lowergreek{list-style-type:lower-greek}
+.hdlist>table,.colist>table{border:0;background:none}
+.hdlist>table>tbody>tr,.colist>table>tbody>tr{background:none}
+td.hdlist1,td.hdlist2{vertical-align:top;padding:0 .625em}
+td.hdlist1{font-weight:bold;padding-bottom:1.25em}
+td.hdlist2{word-wrap:anywhere}
+.literalblock+.colist,.listingblock+.colist{margin-top:-.5em}
+.colist td:not([class]):first-child{padding:.4em .75em 0;line-height:1;vertical-align:top}
+.colist td:not([class]):first-child img{max-width:none}
+.colist td:not([class]):last-child{padding:.25em 0}
+.thumb,.th{line-height:0;display:inline-block;border:4px solid #fff;box-shadow:0 0 0 1px #ddd}
+.imageblock.left{margin:.25em .625em 1.25em 0}
+.imageblock.right{margin:.25em 0 1.25em .625em}
+.imageblock>.title{margin-bottom:0}
+.imageblock.thumb,.imageblock.th{border-width:6px}
+.imageblock.thumb>.title,.imageblock.th>.title{padding:0 .125em}
+.image.left,.image.right{margin-top:.25em;margin-bottom:.25em;display:inline-block;line-height:0}
+.image.left{margin-right:.625em}
+.image.right{margin-left:.625em}
+a.image{text-decoration:none;display:inline-block}
+a.image object{pointer-events:none}
+sup.footnote,sup.footnoteref{font-size:.875em;position:static;vertical-align:super}
+sup.footnote a,sup.footnoteref a{text-decoration:none}
+sup.footnote a:active,sup.footnoteref a:active{text-decoration:underline}
+#footnotes{padding-top:.75em;padding-bottom:.75em;margin-bottom:.625em}
+#footnotes hr{width:20%;min-width:6.25em;margin:-.25em 0 .75em;border-width:1px 0 0}
+#footnotes .footnote{padding:0 .375em 0 .225em;line-height:1.3334;font-size:.875em;margin-left:1.2em;margin-bottom:.2em}
+#footnotes .footnote a:first-of-type{font-weight:bold;text-decoration:none;margin-left:-1.05em}
+#footnotes .footnote:last-of-type{margin-bottom:0}
+#content #footnotes{margin-top:-.625em;margin-bottom:0;padding:.75em 0}
+div.unbreakable{page-break-inside:avoid}
+.big{font-size:larger}
+.small{font-size:smaller}
+.underline{text-decoration:underline}
+.overline{text-decoration:overline}
+.line-through{text-decoration:line-through}
+.aqua{color:#00bfbf}
+.aqua-background{background:#00fafa}
+.black{color:#000}
+.black-background{background:#000}
+.blue{color:#0000bf}
+.blue-background{background:#0000fa}
+.fuchsia{color:#bf00bf}
+.fuchsia-background{background:#fa00fa}
+.gray{color:#606060}
+.gray-background{background:#7d7d7d}
+.green{color:#006000}
+.green-background{background:#007d00}
+.lime{color:#00bf00}
+.lime-background{background:#00fa00}
+.maroon{color:#600000}
+.maroon-background{background:#7d0000}
+.navy{color:#000060}
+.navy-background{background:#00007d}
+.olive{color:#606000}
+.olive-background{background:#7d7d00}
+.purple{color:#600060}
+.purple-background{background:#7d007d}
+.red{color:#bf0000}
+.red-background{background:#fa0000}
+.silver{color:#909090}
+.silver-background{background:#bcbcbc}
+.teal{color:#006060}
+.teal-background{background:#007d7d}
+.white{color:#bfbfbf}
+.white-background{background:#fafafa}
+.yellow{color:#bfbf00}
+.yellow-background{background:#fafa00}
+span.icon>.fa{cursor:default}
+a span.icon>.fa{cursor:inherit}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note::before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip::before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning::before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution::before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important::before{content:"\f06a";color:#bf0000}
+.conum[data-value]{display:inline-block;color:#fff!important;background:rgba(0,0,0,.8);border-radius:50%;text-align:center;font-size:.75em;width:1.67em;height:1.67em;line-height:1.67em;font-family:"Open Sans","DejaVu Sans",sans-serif;font-style:normal;font-weight:bold}
+.conum[data-value] *{color:#fff!important}
+.conum[data-value]+b{display:none}
+.conum[data-value]::after{content:attr(data-value)}
+pre .conum[data-value]{position:relative;top:-.125em}
+b.conum *{color:inherit!important}
+.conum:not([data-value]):empty{display:none}
+dt,th.tableblock,td.content,div.footnote{text-rendering:optimizeLegibility}
+h1,h2,p,td.content,span.alt,summary{letter-spacing:-.01em}
+p strong,td.content strong,div.footnote strong{letter-spacing:-.005em}
+p,blockquote,dt,td.content,td.hdlist1,span.alt,summary{font-size:1.0625rem}
+p{margin-bottom:1.25rem}
+.sidebarblock p,.sidebarblock dt,.sidebarblock td.content,p.tableblock{font-size:1em}
+.exampleblock>.content{background:#fffef7;border-color:#e0e0dc;box-shadow:0 1px 4px #e0e0dc}
+.print-only{display:none!important}
+@page{margin:1.25cm .75cm}
+@media print{*{box-shadow:none!important;text-shadow:none!important}
+html{font-size:80%}
+a{color:inherit!important;text-decoration:underline!important}
+a.bare,a[href^="#"],a[href^="mailto:"]{text-decoration:none!important}
+a[href^="http:"]:not(.bare)::after,a[href^="https:"]:not(.bare)::after{content:"(" attr(href) ")";display:inline-block;font-size:.875em;padding-left:.25em}
+abbr[title]{border-bottom:1px dotted}
+abbr[title]::after{content:" (" attr(title) ")"}
+pre,blockquote,tr,img,object,svg{page-break-inside:avoid}
+thead{display:table-header-group}
+svg{max-width:100%}
+p,blockquote,dt,td.content{font-size:1em;orphans:3;widows:3}
+h2,h3,#toctitle,.sidebarblock>.content>.title{page-break-after:avoid}
+#header,#content,#footnotes,#footer{max-width:none}
+#toc,.sidebarblock,.exampleblock>.content{background:none!important}
+#toc{border-bottom:1px solid #dddddf!important;padding-bottom:0!important}
+body.book #header{text-align:center}
+body.book #header>h1:first-child{border:0!important;margin:2.5em 0 1em}
+body.book #header .details{border:0!important;display:block;padding:0!important}
+body.book #header .details span:first-child{margin-left:0!important}
+body.book #header .details br{display:block}
+body.book #header .details br+span::before{content:none!important}
+body.book #toc{border:0!important;text-align:left!important;padding:0!important;margin:0!important}
+body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-break-before:always}
+.listingblock code[data-lang]::before{display:block}
+#footer{padding:0 .9375em}
+.hide-on-print{display:none!important}
+.print-only{display:block!important}
+.hide-for-print{display:none!important}
+.show-for-print{display:inherit!important}}
+@media amzn-kf8,print{#header>h1:first-child{margin-top:1.25rem}
+.sect1{padding:0!important}
+.sect1+.sect1{border:0}
+#footer{background:none}
+#footer-text{color:rgba(0,0,0,.6);font-size:.9em}}
+@media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body class="article">
+<div id="header">
+<h1><code>spreadsheet-handling</code> Release Notes</h1>
+<div class="details">
+<span id="revnumber">version v0.2.2,</span>
+<span id="revdate">2026-10-15T15:59:49+00:00</span>
+<br><span id="revremark">887dd397</span>
+</div>
+<div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_0_2_2planned">1. 0.2.2&#8201;&#8212;&#8201;planned</a></li>
+<li><a href="#_0_2_1_released">2. 0.2.1 (released)</a>
+<ul class="sectlevel2">
+<li><a href="#_functional_model_project_memory_and_reset_direction">2.1. Functional Model, Project Memory, and reset direction</a></li>
+<li><a href="#_spreadsheet_backends_and_roundtrip_behavior">2.2. Spreadsheet backends and roundtrip behavior</a></li>
+<li><a href="#_pipeline_steps_and_role_based_projection">2.3. Pipeline steps and role-based projection</a></li>
+<li><a href="#_schema_maintenance_cli">2.4. Schema maintenance CLI</a></li>
+<li><a href="#_cli_surface_cleanup">2.5. CLI surface cleanup</a></li>
+<li><a href="#_known_limitations">2.6. Known limitations</a></li>
+</ul>
+</li>
+<li><a href="#_0_2_0_released">3. 0.2.0 (released)</a>
+<ul class="sectlevel2">
+<li><a href="#_highlights">3.1. Highlights</a></li>
+<li><a href="#_user_facing_changes">3.2. User-facing changes</a></li>
+<li><a href="#_transformation_and_pipeline_changes">3.3. Transformation and pipeline changes</a></li>
+<li><a href="#_spreadsheet_backends_and_roundtrip_behavior_2">3.4. Spreadsheet backends and roundtrip behavior</a></li>
+<li><a href="#_documentation_and_demo">3.5. Documentation and demo</a></li>
+<li><a href="#_migration_notes">3.6. Migration notes</a></li>
+<li><a href="#_internal_architecture_and_maintainability">3.7. Internal architecture and maintainability</a></li>
+<li><a href="#_known_limitations_2">3.8. Known limitations</a></li>
+</ul>
+</li>
+<li><a href="#_related_links">4. Related Links</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div class="sect1">
+<h2 id="_0_2_2planned">1. 0.2.2&#8201;&#8212;&#8201;planned</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Maintenance and consumer-driven capability release on top of <code>v0.2.1</code>.
+It consolidates the framework work since June 2026 and includes fixes and
+generic pipeline capabilities exercised by external consumers.</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>validate_references</code> gained two consumer-neutral frame-contract rules.
+<code>required_columns</code> (<code>frame</code>, <code>columns</code>, optional <code>exact: true</code>) reports a
+missing frame, missing columns and, when exact, unexpected columns; column
+order is not part of the contract. <code>non_empty</code> (<code>frame</code>, <code>columns</code>, optional <code>trimmed: true</code>) reports
+every missing, null or empty-string cell, with <code>trimmed</code> also text that has
+leading or trailing whitespace, and honours <code>when</code>. Both follow the
+step&#8217;s <code>mode</code> and report through the existing finding shape, so a consumer no
+longer needs a local checker for table shape. Found by a consumer repository
+that had re-implemented them next to the pipeline.</p>
+</li>
+<li>
+<p>Bug fix (<code>BUG-JSON-INGRESS-MISSING-IDENTITY-P4A</code>): JSON directory ingress
+now preserves Missing identity for explicit <code>null</code> values and structurally
+absent fields on supported pandas 2.x configurations instead of turning them
+into the literal strings <code>"None"</code> / <code>"nan"</code>. Missing values normalize to the
+existing empty-string representation, while legitimate domain strings
+<code>"None"</code> and <code>"nan"</code> remain unchanged. The corrected behaviour is also
+verified against pandas 3.x.</p>
+</li>
+<li>
+<p>Declarative <code>primary_key</code> / <code>foreign_key</code> validation and graph endpoint
+resolution now use category-aware relation-key identity. Strings compare
+exactly (including whitespace); Number/String and Boolean/Number pairs do
+not match; integral numeric carriers such as <code>1</code>, <code>1.0</code>, and
+<code>numpy.int64(1)</code> match; and Missing values never participate in relation
+resolution or primary-key duplicate identity. Graph <code>unique_edges</code> and
+reference <code>unique_reference</code> retain their existing generic tuple-uniqueness
+behavior. This is a bounded relation-key rule, not general scalar
+normalization.</p>
+</li>
+<li>
+<p>Lookup enrichment, duplicate-key detection, and helper-mismatch verification
+now use category-aware relation-key identity. Strings compare exactly
+(including whitespace); Number/String and Boolean/Number pairs do not match;
+and integral numeric carriers such as <code>1</code>, <code>1.0</code>, and <code>numpy.int64(1)</code> match.
+Missing values never resolve or count as duplicate lookup keys, and mixed
+pandas key dtypes now follow Lookup&#8217;s configured missing-key policy instead
+of raising a pandas dtype error. This is a bounded Lookup rule, not general
+scalar normalization.</p>
+</li>
+<li>
+<p>FK helper enrichment and validation now use category-aware relation-key
+identity: Strings compare exactly (including whitespace), Number/String and
+Boolean/Number pairs do not match, and integral numeric carriers such as
+<code>1</code>, <code>1.0</code>, and <code>numpy.int64(1)</code> match. Missing values never resolve or
+count as duplicate IDs; the literal String <code>"nan"</code> remains an ordinary
+duplicate-able key. This is a bounded FK rule, not general scalar
+normalization.</p>
+</li>
+<li>
+<p>Workflow Coordinator prompts now include one mandatory, reviewed
+Coordinator-owned agent operating contract admitted before Run creation and
+recorded with bounded provenance in operator-plan evidence.</p>
+</li>
+<li>
+<p>Workflow Coordinator repository policies now use the strict version 3
+surface: consumer-owned <code>evidence_commands</code> definitions replace
+<code>evidence_states</code> and the former in-code command registry. Version 1 and 2
+repository policies are rejected with a migration-required diagnostic; no
+backward-compatibility reader or migration machinery is provided.</p>
+</li>
+<li>
+<p>Bug fix: FK validation no longer emits false <code>unresolvable_fk</code> or
+<code>value_mismatch</code> findings for Missing source FKs (<code>None</code>, <code>""</code>, NaN,
+<code>pd.NA</code>, or <code>NaT</code>). The literal string <code>"nan"</code> remains an ordinary FK value
+and is reported as <code>unresolvable_fk</code> when it does not resolve.</p>
+</li>
+<li>
+<p>Opt-in less-trusted pipeline-description authorization
+(<code>FTR-TRUSTED-INGRESS-P4A</code>, Phase-E slice E7; implementation awaiting fresh
+independent review): trusted Python callers can supply a
+<code>LessTrustedDescriptionAuthorization</code> to <code>build_steps_from_config</code>,
+<code>build_steps_from_yaml</code>, or <code>run_app</code>. Its closed policy grammar grants exact
+registered step names, exact canonical plugin targets, and exact writer
+roots, with the resource-specific restrictions documented by the FTR.
+Omitting the keyword retains the existing trusted-description behavior, so
+current configurations require no migration. <code>run_app</code> applies E7 only while
+constructing <code>AppConfig.pipeline</code>; <code>AppConfig.io</code> remains trusted-operator-
+owned. Authorized plugins remain trusted same-process Python under their
+complete argument contract: this is not a Python sandbox. The initial
+<code>sheets-run</code> CLI does not advertise less-trusted YAML protection.</p>
+</li>
+<li>
+<p>Asymmetric lookup join keys
+(<code>FTR-XREF-LOOKUP-HELPER-SUBSTITUTION-P4A2</code> Slice 1): <code>add_lookup_helpers</code>
+(<code>enrich_lookup</code>) gains an opt-in <code>source_key</code>/<code>lookup_key</code> parameter pair
+that joins a source-side key against a differently named lookup-side key
+(e.g. source <code>story_id</code> against lookup <code>id</code>). The pair is mutually exclusive
+with the symmetric <code>key</code>/<code>keys</code>/<code>"on"</code> forms and both halves are required
+together. Only the source key appears in the output frame; the lookup key
+never leaks, and <code>helper_position: before_key</code> anchors on the source key. All
+existing symmetric behaviour — values, columns, ordering, diagnostics,
+provenance, and errors — is unchanged; the asymmetric provenance additively
+records the distinct <code>source_key</code>/<code>lookup_key</code> instead of a synthetic common
+key. An explicit <code>source_key</code>/<code>lookup_key</code> pair is authoritative for join-key
+selection: it ignores a configured helper-policy <code>key</code> while still consuming
+the policy&#8217;s non-key settings (helper <code>fields</code>, <code>allowed</code> fields, <code>order</code>,
+<code>missing</code> behaviour, and helper value mode), and it keeps the asymmetric
+provenance shape even when the two key names are equal. A requested helper or
+temporary sort field that collides with the source key or the lookup key is
+rejected with a clear domain error before projection, so the source key is
+never overwritten and the lookup key never leaks in either values or formula
+mode. This collision safety follows the selected asymmetric mode even when the
+two key names are equal (an explicit asymmetric key cannot also be requested
+as a helper), while sorting the output by that key stays valid and legacy
+symmetric behaviour is unchanged. Requesting the same helper column twice is
+rejected with a clear domain error before projection (a generic guard for both
+modes) so output labels and helper provenance stay unambiguous.
+<code>apply_derived_column_policy</code> mismatch policies (<code>warn_on_mismatch</code> /
+<code>fail_on_mismatch</code>) now value-check asymmetric helpers by keying the payload
+on <code>source_key</code> and the lookup frame on <code>lookup_key</code>; they fail closed on
+invalid mismatch provenance. The join-key form is selected from mapping-member
+presence rather than value truthiness, so a present record with no key form,
+an explicitly <code>null</code> member, a partial, mixed, blank, or wrong-typed key all
+raise a clear error naming the metadata path; a named key column absent from
+the payload or lookup frame yields a severity-appropriate inability-to-verify
+finding instead of a silent pass; and <code>policy: drop</code> stays value-blind. This is a
+backend-neutral domain-lookup capability; it was subsequently bound across the
+persistence boundary, migrated into the worldbuilding pipelines, and used to
+retire <code>project_by_role</code> in the later slices recorded below.</p>
+</li>
+<li>
+<p>Durable inbound helper binding
+(<code>FTR-XREF-LOOKUP-HELPER-SUBSTITUTION-P4A2</code> Slice 2): settles the public
+inbound sequence that lets <code>apply_derived_column_policy(policy: drop)</code> remove
+a read-only display helper (such as <code>title</code>) before the XRef inverse, using
+only existing steps (no new runtime capability). The durable carrier is
+<code>_meta.sheets.&lt;visible-sheet&gt;.helper_columns</code> written by
+<code>configure_workbook_view</code>; the transient <code>_meta.derived</code> provenance is pruned
+at the persistence boundary. Cleanup must run <strong>by the visible sheet name
+before</strong> <code>apply_workbook_view_sheet_mappings</code>, because that mapping re-keys
+frames but not <code>_meta.sheets</code>; logical-frame cleanup after mapping leaves the
+helper unclassified and the inverse would melt it. An edited read-only helper
+is discarded under value-blind <code>drop</code>, never melted or written back. The
+optional <code>validate_references</code> / <code>no_helper_columns</code> postcondition is
+<strong>declaration-bound</strong>: it and the cleanup read the same
+<code>_meta.sheets.&lt;visible-sheet&gt;.helper_columns</code>, so it catches an omitted or
+ineffective cleanup that leaves a <strong>declared</strong> helper behind, but it cannot
+detect a <strong>missing</strong> declaration (with no declaration both cleanup and guard see
+no helper and pass while the helper survives). A column name is never inferred;
+verifying that each Workbook View sheet declares its display helper is a
+consumer-owned static check (Slice 3 for the Worldbuilding matrix sheets). See
+the "Removing a read-only display helper before the inverse" section of the
+supporting-steps user guide.</p>
+</li>
+<li>
+<p>Retired the <code>project_by_role</code> pipeline step
+(<code>FTR-XREF-LOOKUP-HELPER-SUBSTITUTION-P4A2</code> Slice 4). <strong>Breaking public-step
+removal.</strong> After the Worldbuilding consumers migrated (Slice 3), the role-based
+projection step, its registration, its <code>pipeline_step_registry.json</code> and
+<code>implementation_units.json</code> records, and its four dedicated tests were
+removed. The read-only display-helper behaviour it provided is fully
+reproduced by the explicit lookup/helper composition: outbound
+<code>add_lookup_helpers</code> with <code>helper_position: before_key</code>, and inbound
+<code>apply_derived_column_policy(policy: drop)</code> bound to the durable
+<code>_meta.sheets.&lt;visible-sheet&gt;.helper_columns</code> carrier before the XRef inverse.
+There is no deprecated wrapper, alias, or hidden fallback; a pipeline still
+configuring <code>step: project_by_role</code> now fails with the normal unknown-step
+diagnostic. <strong>Migration:</strong> replace any <code>project_by_role</code> usage with the
+composition above (see Slice 1/2 entries and the supporting-steps user guide).
+The shared column-role resolver (<code>spreadsheet_handling.domain.column_roles</code>)
+and the foundation role taxonomy (<code>row_identity</code>, <code>display_helper</code>,
+<code>matrix_value</code>) are <strong>retained</strong> — they remain the source of truth for
+role-targeted <code>add_validations</code>.</p>
+</li>
+<li>
+<p>Flat one-level XRef axis-label projection
+(<code>FTR-XREF-AXIS-MAPPINGS-P4A2</code> Slice 2): two new opt-in pipeline steps,
+<code>project_axis_labels</code> (outbound) and <code>restore_axis_keys</code> (inbound), swap a
+relation&#8217;s axis-identity column (default <code>column_key</code>) between stable
+canonical keys and readable flat one-level visible labels, composed <strong>around</strong>
+unchanged <code>contract_xref</code> / <code>expand_xref</code>. The key/label bijection is resolved
+on every run from a live source frame (<code>source_frame</code> + <code>key_column</code><br>
+<code>label_column</code>) via the reviewed Slice 1 resolver; nothing is persisted, and
+an absent source frame fails rather than trusting stale or visible text. A
+canonical key missing from the mapping (outbound) or an unresolvable visible
+label (inbound) fails before any output is published; input frames and <code>_meta</code>
+are never mutated. Flat-string XLSX and ODS matrices round-trip with no
+carrier or XRef change. Hierarchical (tuple) labels and grouped multi-row
+headers remain later slices. Opt-in: existing flat XRef pipelines are
+unaffected.</p>
+</li>
+<li>
+<p>Grouped XRef composites
+(<code>FTR-XREF-AXIS-MAPPINGS-P4A2</code> GX-2): two new opt-in pipeline steps,
+<code>contract_grouped_xref</code> and <code>expand_grouped_xref</code>, project a canonical relation
+onto a <strong>grouped</strong> matrix whose dynamic column headers carry multi-level visible
+label <strong>tuples</strong> and restore it exactly, composing <strong>unchanged</strong> <code>contract_xref</code> /
+<code>expand_xref</code> with the reviewed grouped-header projection. The forward step
+publishes a <code>GroupedMatrix</code> — an internal domain carrier bundling the flat
+canonical matrix with its grouped-header descriptor; the inverse reads that
+carrier back. Raw carrier construction is rejected; the public
+<code>grouped_matrix_from_canonical</code> factory and the inverse both prove that the
+current canonical flat column schema projects to the exact carried descriptor,
+so reordered/moved/stale/altered headers fail before values can be assigned to
+different canonical keys. The arity-N key/tuple bijection is resolved on every
+run from a live source frame (<code>source_frame</code> + <code>key_column</code> + <code>label_columns</code>)
+via the Slice 1 resolver; nothing is persisted. <code>xref_config_id</code> selects the
+unchanged XRef metadata identity, while YAML <code>name</code> remains the pipeline step
+name. One-shot <code>row_keys</code> iterables are owned once and safely reused. Opt-in:
+existing flat and grouped-free XRef pipelines are unaffected.</p>
+</li>
+<li>
+<p>Grouped XRef workbook carriers
+(<code>FTR-XREF-AXIS-MAPPINGS-P4A2</code> GX-3b/GX-4): grouped matrices are now workbook
+carriers for <strong>both XLSX and ODS</strong>. A <code>GroupedMatrix</code> composes into an exact,
+lossless multi-row header grid (repeated literal labels, no reliance on merge
+geometry); reading it back with the opt-in configured-depth exact-header gate
+(<code>exact_header_depths</code>, per sheet, on the XLSX and ODS readers) yields a
+backend-neutral exact table that the new <code>reconstruct_grouped_matrix</code> pipeline
+step turns back into a validated <code>GroupedMatrix</code> under one live axis mapping,
+ready for the unchanged <code>expand_grouped_xref</code>. The exact read overrides
+merge-based header inference, captures every physical header cell verbatim
+(merged masters resolved, blanks preserved, no <code>" / "</code> join/split), and begins
+data directly below the configured depth. Opt-in: without the gate every read
+is byte-identical to before.</p>
+</li>
+<li>
+<p>Grouped XRef workbook adoption through the public render path
+(<code>FTR-XREF-AXIS-MAPPINGS-P4A2</code> GX-5): the already-accepted grouped workbook
+carrier is now reachable through the public configuration surface. An explicit
+<code>configure_workbook_view</code> sheet selection accepts a <code>GroupedMatrix</code> (preserved
+by identity) alongside ordinary DataFrames for inclusion, declaration order,
+and physical sheet rename; column-targeted sheet options (<code>helper_columns</code>,
+<code>editable_columns</code>, protection, generic options) are rejected for a grouped
+sheet because grouped identity is the full visible tuple. The router-facing
+<code>save_xlsx</code> / <code>save_ods</code> savers preserve a <code>GroupedMatrix</code> through to the
+render path instead of coercing it, while every other value keeps its existing
+DataFrame coercion. On readback, Workbook View sheet mapping now counts a
+<code>core.ExactTable</code> (produced under the <code>exact_header_depths</code> gate) as a
+projected visible sheet, so <code>apply_workbook_view_sheet_mappings</code> re-keys it to
+its logical frame for the unchanged <code>reconstruct_grouped_matrix</code> &#8594;
+<code>expand_grouped_xref</code> chain. A pre-render grouped Workbook View validation
+failure publishes no output file and mutates neither caller frames nor <code>_meta</code>.
+Opt-in: no new step, type, or parameter; existing DataFrame Workbook Views and
+direct backend writes are unchanged.</p>
+</li>
+<li>
+<p>Legend Blocks canonical shape and <code>resolved</code> correction
+(<code>FTR-LEGEND-BLOCKS-RESOLVED-SHAPE-CORRECTION-P5</code>): <code><em>meta.legend_blocks</code> may
+still be <strong>authored</strong> as either a mapping or a list (list identity resolved from
+<code>name</code>, then <code>id</code>, then a positional <code>legend</em>&lt;n&gt;</code> fallback), but list form is
+now normalized once to the canonical insertion-ordered mapping at an internal
+<code>domain.ingress</code> boundary invoked automatically after orchestrator load and
+after the <code>bootstrap_meta</code> / <code>apply_overrides</code> config merges. Every domain,
+validation, render, persistence, and carrier consumer now sees mapping form
+only. An explicit <code>legend_blocks: null</code> is treated as an absent declaration
+and canonicalized to an empty mapping, so structured persistence cannot emit
+a null Legend Blocks root. The render-derived <code>resolved</code> placement facet is
+Resolution, never durable Intent: it is stripped at domain ingress, at the
+structured sidecar persistence boundary, and — newly — from canonical
+XLSX/ODS workbook readback after the parser has used it to classify the
+legend surface, so it can no longer transiently re-enter canonical <code>_meta</code>.
+A default-placement legend that lands on its own sheet no longer round-trips
+as an extra payload frame (XLSX and ODS parity). Compatibility: external list
+<strong>and</strong> mapping authoring remain accepted through the application/config path,
+but direct low-level calls (<code>run_pipeline</code>, a raw render, or a backend save)
+with list-form
+<code>legend_blocks</code> are no longer supported — such callers must supply canonical
+mapping form or invoke ingress explicitly. Every configuration-derived
+callable string&#8201;&#8212;&#8201;the public plugin step, direct colon-style <code>step:</code>
+factories, and nested string targets accepted by generic frames-first or
+builder-style binders&#8201;&#8212;&#8201;passes through one pipeline-local ownership check
+before import and rejects the framework-internal
+<code>spreadsheet_handling.domain.ingress</code> namespace. Direct Python callable
+targets and ordinary dotted-callable plugins/factories are unchanged. The
+<code>legend_blocks</code> meta-registry entry now names its full producer/consumer
+surface. Entry-value semantics are unchanged and remain owned by
+<code>FTR-LEGEND-BLOCKS-ENTRY-CONTRACT-P5</code>.</p>
+</li>
+<li>
+<p>Compact Multiaxis persistence correction: composed expand/contract runs no
+longer persist XRef metadata that names their deleted internal temporary
+relation. A legitimate caller-supplied prior XRef entry is restored exactly.
+<code>_meta.compact_multiaxis</code> remains persisted as a diagnostics-only trace; it is
+not inverse intent or configuration fallback, and it no longer blocks column
+schema maintenance. Sparse Defaults remains a separate explicit pipeline
+composition.</p>
+</li>
+<li>
+<p>Compact Multiaxis scoped recomposition
+(<code>FTR-COMPACT-MULTIAXIS-SCOPED-RECOMPOSITION-P4A</code>): <code>expand_compact_multiaxis</code>
+gains an optional <code>base_canonical_relation</code> parameter so a <strong>partial</strong>
+spreadsheet projection (a matrix and/or <code>value_columns</code> that expose only a
+subset of a larger relation) can be reimported without losing rows outside the
+visible scope. The composite Cell-Codec-encodes the named <strong>canonical</strong> base
+relation to the compact relation shape XRef expects, passes it through the
+wrapped <code>expand_xref</code> as its <code>base_relation</code> (in-scope matrix addresses
+replace — or, when cleared, delete — exactly the visible scope; out-of-scope
+base rows are preserved), then decodes the merged result. No parallel merge
+logic is added; replacement, deletion, and ordering stay XRef-owned. The
+parameter is opt-in and names the pre-codec canonical shape, distinct from the
+compact-shaped <code>expand_xref</code> <code>base_relation</code>; omitting it reproduces the
+previous full-replacement behavior, so existing full-matrix pipelines are
+unaffected. The intermediate encoded base is an internal temporary frame that
+never leaks into returned or persisted metadata.</p>
+</li>
+<li>
+<p>Carrier-neutral final domain cleanup
+(<code>FTR-META-ONTOLOGY-REMOVAL-WORKBOOK-PROJECTION-EPIC-P4A</code>, first slice):
+pipelines can now remove redundant logical frames before persistence so
+that every output adapter — JSON/YAML/XML/CSV directories and XLSX/ODS
+workbooks — observes the same cleaned frame set. A new
+<code>configure_pipeline_cleanup</code> step declares either <code>drop_frames</code> (frames to
+remove) or <code>keep_frames</code> (final frame set to retain; mutually exclusive
+modes, contradictions fail). <code>expand_xref</code> / <code>contract_xref</code> gain an
+explicit <code>drop_source</code> parameter that marks the superseded source frame
+for cleanup. The orchestrator executes and consumes these commands
+implicitly between the configured steps and the persistence boundary;
+commands never persist or roundtrip. A frame targeted by an explicit drop
+command while explicitly mapped by <code>workbook_view</code> fails before anything is
+written.
+Known limitation: artifacts written by mid-pipeline steps
+(<code>write_structured_yaml</code>, <code>write_key_value_resources</code>) are emitted before
+the cleanup boundary and reflect the earlier uncleaned state.</p>
+</li>
+<li>
+<p>Cleanup/Workbook-View conflict refinement: only explicitly drop-commanded
+frames conflict with an explicit <code>workbook_view</code> mapping. Keep-mode
+<strong>implied</strong> removals coexist with (possibly reimported, stale) view
+mappings, so reverse pipelines can retain a canonical frame subset from a
+workbook whose persisted view still maps the discarded view frames; the
+spreadsheet renderer still fails loudly if such a workbook were written
+again with a mapped frame missing.</p>
+</li>
+<li>
+<p><code>_meta.workbook_view.sheet_mappings</code> entries are now frame-only
+(<code>sheet</code> + <code>frame</code>). The derived <code>canonical_frame</code> key is no longer
+produced; legacy persisted mappings that carry it are ignored on read.
+Schema maintenance (<code>sheets-schema-maintain</code>) now routes sheet-scoped
+column references to the frame actually mapped to the sheet
+(frame-only resolution): renaming a column of a projection&#8217;s <strong>source</strong>
+frame no longer updates constraints or sheet options that target the
+projection&#8217;s sheet. The projection/source relationship remains
+feature-local transformation knowledge (for example <code>xref_crosstable</code>
+intent), not generic mapping identity.</p>
+</li>
+<li>
+<p>Generic frame lifecycle/render ontology has been removed. Rendering now
+selects every remaining logical frame when no explicit
+<code>workbook_view.sheets</code> list exists; an explicit list is authoritative for
+selection, names, and order. <code>configure_workbook_view</code> no longer accepts or
+writes lifecycle/render-policy knobs (<code>mode</code>, <code>drop_redundant_data</code>,
+<code>unknown_frame_policy</code>, debug/role inclusion controls, or sheet lifecycle
+fields). Generic lifecycle writes were removed from extraction, join,
+pivot, compact-multiaxis, lookup-enrichment, and Workbook View producers;
+legacy <code>frame_lifecycle</code> payloads are ignored and stripped at persistence.
+Schema maintenance no longer treats <code>canonical_frame</code> as a generic frame
+reference. Feature-local inverse contracts and FK relation
+<code>produced_by</code> conflict identity remain unchanged.</p>
+</li>
+<li>
+<p>XRef projection family (<code>expand_xref</code> / <code>contract_xref</code>): persisted
+<code>_meta.xref_crosstable</code> entries now carry only the minimal inverse intent
+(<code>relation</code>, <code>matrix</code>, <code>row_keys</code>, <code>dense_axes</code> intent); the descriptive
+<code>operation</code>, <code>column_key</code>, <code>value</code>, and <code>drop_empty</code> fields are no longer
+written (legacy payloads are tolerated). Intent lookup by frame name now
+fails explicitly when multiple entries match instead of silently using
+the first — in the transformations, in sparse-default targeting, and in
+column-role resolution (pass explicit <code>key_columns</code> to disambiguate).
+<code>drop_source</code> now rejects checkable value loss: a contraction over a
+relation with fields beyond <code>row_keys</code> + <code>column_key</code> + <code>value</code>, a
+contraction whose matrix columns do not cover every relation column key,
+or an expansion whose explicit <code>value_columns</code> leave matrix columns
+unexpanded. XRef roundtrip <strong>matrix-axis identities</strong> are now contractually
+<strong>unique, non-empty strings</strong> (carrier-stable across XLSX/ODS headers):
+numeric, missing, mixed-type, duplicate, or unhashable axis identities
+fail with explicit diagnostics on every axis-identity source — relation
+<code>column_key</code> values, explicit/metadata-derived/dense-derived
+<code>column_keys</code>, scoped <code>base_relation</code> identities, and the full physical
+matrix header row — before any cleanup command is recorded; explicit
+<code>value_columns</code> are validated as axis identities <strong>before</strong> the <code>row_keys</code>
+overlap check, so a missing (<code>pd.NA</code>), numeric, or array-valued selector
+now yields the XRef diagnostic instead of a raw pandas/NumPy error.
+<strong>Physical relation/<code>base_relation</code> column labels</strong> are a distinct, weaker
+boundary — non-missing, hashable, uniquely and deterministically
+comparable, and scalar-addressable, but <strong>not</strong> required to be strings:
+missing-like (<code>None</code>/<code>NaN</code>/<code>pd.NA</code>), ambiguous-equality, unhashable (for
+example a Python <code>list</code>), or duplicate physical labels are rejected before
+any output or cleanup (closing a case where duplicate <code>NaN</code>/<code>pd.NA</code> labels
+previously produced a <code>Series</code> cell and an unwanted cleanup command, and a
+deterministic unhashable label previously raised a raw <code>TypeError</code> inside
+pandas membership). Duplicate configured <code>row_keys</code> and <code>value_columns</code>
+overlapping <code>row_keys</code> fail the same way. Typed (non-string)
+<strong>matrix-axis</strong> identities were never carrier-stable and are explicitly
+unsupported; hierarchical/tuple <strong>physical</strong> labels remain future design
+work, neither promised across the operation surface nor prohibited by a
+global string-only rule. <code>sheets-schema-maintain</code> handles <code>_meta.xref_crosstable</code>
+with a dedicated checker that blocks renames/drops only for real XRef
+references (<code>row_keys</code> on the relation/matrix frames, matrix
+<code>column_keys</code> including stored <code>dense_axes.resolved.column_keys</code>
+snapshots, dense-axis keys); convention-style shapes inside the root no
+longer block, and real references no longer dangle silently.</p>
+</li>
+<li>
+<p>Cell Codec projection family (<code>encode_cell_values</code> /
+<code>decode_cell_values</code>): codec intent lives entirely in explicit step
+configuration; the <code>_meta.cell_codecs</code> family is retired (it had no
+runtime reader — legacy payloads in old sidecars/workbooks are ignored
+pass-through sediment, and <code>sheets-schema-maintain</code> no longer blocks on
+them). The string-oriented contract is enforced on the position-based
+path: numeric/boolean/date participating values fail explicitly instead
+of silently changing type; empty and missing values encode as the
+configured <code>absent_value</code> and decode to <code>""</code>. Declaration guards reject
+duplicate participating/group columns, duplicate physical labels,
+compact-column collisions, <code>absent_value</code> containing the separator, and
+decode collisions with existing columns. <code>split_tokens</code> serialization
+now rejects tokens containing the delimiter (previously producing cells
+that could not be decoded back to the same tokens). The user-guide
+section was corrected (actual modes are <code>whole_cell_code</code> /
+<code>split_tokens</code> with delimiter default <code>-</code>; the position-based
+<code>codec_intent</code> contract is now documented).</p>
+</li>
+<li>
+<p><code>sheets-schema-maintain</code> now maintains lookup-helper policy references in
+<code>_meta.helper_policies.lookup</code>: renaming a column of the lookup frame updates
+the policy&#8217;s <code>key</code>, <code>allowed_helpers</code>, <code>default_helpers</code>, and
+<code>order.sort_by</code> references, and dropping a column referenced by a lookup
+policy is blocked (prune included). Previously these references silently
+dangled after a rename or drop.</p>
+</li>
+<li>
+<p><code>sheets-schema-maintain</code> no longer silently ignores unmaintained
+<code>_meta.helper_policies</code> subtrees (anything other than <code>fk</code> and <code>lookup</code>):
+if such a subtree contains a structured frame+column reference to the
+affected column, rename/drop now blocks with a reported metadata reference
+instead of leaving the reference dangling.</p>
+</li>
+<li>
+<p>Bug fix (<code>BUG-ODS-XLOOKUP-FORMULA-INTEROP-P4A</code>): ODS formula-mode FK-helper
+and lookup-helper formulas (<code>helper_value_mode: formula</code>) previously opened
+as <code>#NAME?</code> in LibreOffice Calc even though the lookup references were
+valid, until each formula was manually reparsed through the Function
+Wizard. The ODS writer now serializes the lookup as LibreOffice&#8217;s
+extension-qualified <code>COM.MICROSOFT.XLOOKUP</code> rather than plain <code>XLOOKUP</code>
+(not part of the standard OpenFormula vocabulary), so generated formulas
+evaluate immediately&#8201;&#8212;&#8201;verified against LibreOffice 25.2.3.2, including
+live recalculation on a source FK edit and the configured missing-result
+behavior for an unknown key. XLSX formula rendering and both backends'
+<code>helper_value_mode: values</code> are unchanged. <code>values</code> remains the
+broader-compatibility fallback for LibreOffice versions without <code>XLOOKUP</code>
+support, but it does not update the displayed helper value live when the
+source FK is edited.</p>
+</li>
+<li>
+<p>Bug fix (<code>BUG-ODS-MISSING-CARRIER-LITERAL-NAN-RENDERING-P4A</code>): the ODS
+writer&#8217;s per-cell emptiness check was NaN-blind, so a real pandas/NumPy
+missing value reaching the renderer&#8201;&#8212;&#8201;e.g. a successful FK-helper
+lookup whose resolved target field is itself missing, or an ordinary
+blank cell loaded from a <code>csv_dir</code> source&#8201;&#8212;&#8201;was serialized as the
+literal text <code>"nan"</code> instead of an empty cell. Both cases now render (and
+reimport) as an empty cell on ODS, matching XLSX&#8217;s existing behavior. A
+legitimate domain value that is literally the string <code>"nan"</code> is
+unaffected and still round-trips as <code>"nan"</code>.</p>
+</li>
+<li>
+<p>Bug fix (<code>FTR-MINIMAL-INTERNAL-VALUE-MODEL-P4A</code> Slice 1, D2): the
+<code>csv_dir</code> directory-read ingress path applied pandas' default dtype
+inference and NaN handling instead of the string-preserving contract
+already used by the single-file CSV path, JSON, and YAML. A blank cell
+now loads as <code>""</code> rather than a pandas <code>NaN</code>, and a numeric-looking
+textual value such as <code>"007"</code> is no longer dtype-promoted to a number&#8201;&#8212;&#8201;it retains its exact textual representation, matching the already-
+established <code>csv_dir</code>/CSV/JSON/YAML ingress contract for every other
+format. This is the matching ingress-side fix for the same carrier-leak
+class the <code>BUG-ODS-MISSING-CARRIER-LITERAL-NAN-RENDERING-P4A</code> renderer-
+side fix above closes.</p>
+</li>
+<li>
+<p>Bug fix / new capability (<code>FTR-DATE-TIME-INTERNAL-VALUE-MODEL-P4A</code> D-T2):
+<code>save_yaml_dir</code> (<code>yaml_dir</code> output) and <code>write_json_dir</code>/<code>JSONBackend.write_multi</code>
+(<code>json_dir</code> output) previously raised <code>yaml.representer.RepresenterError</code>
+or <code>TypeError</code> for any <code>datetime.date</code>/<code>datetime.datetime</code>/<code>pandas.Timestamp</code>
+cell value, including a column loaded unmodified from a YAML file&#8217;s own
+native timestamp tags. Both now accept these values: YAML writes a native,
+unquoted <code>date</code>/<code>timestamp</code> scalar at microsecond precision (a missing
+temporal cell writes as <code>null</code>, matching the existing <code>datetime.date</code>
+convention); JSON writes reserved, single-key <code>{"$date": "&lt;ISO date&gt;"}</code> /
+<code>{"$datetime": "&lt;ISO datetime, offset suffix iff aware&gt;"}</code> envelopes at
+microsecond precision (a missing temporal cell writes as <code>""</code>, matching
+every other column&#8217;s existing Missing convention). Timezone awareness and
+the exact numeric UTC offset are preserved; named/IANA timezone identity
+and <code>pandas.Timestamp</code>-vs-<code>datetime.datetime</code> carrier identity are not.
+<code>read_json_dir</code>/<code>JSONBackend.read_multi</code> is deliberately unchanged for
+this slice: a <code>$date</code>/<code>$datetime</code> envelope written by <code>write_json_dir</code>
+reads back as a plain string, not a native temporal value.</p>
+</li>
+<li>
+<p>Breaking change (<code>FTR-XREF-PHYSICAL-LABEL-METADATA-AUTHORITY-P4A</code>):
+<code>contract_xref</code>/<code>expand_xref&#8217;s `row_keys</code> and dense-axis
+<code>rows_from</code>/<code>columns_from</code> <code>key</code>/<code>keys</code> selectors&#8201;&#8212;&#8201;including the
+inherited Compact Multiaxis forwarding trace&#8201;&#8212;&#8201;must now be an exact,
+non-empty native <code>str</code> (<code>type(value) is str and value != ""</code>; no
+coercion or stringification). This retires the previously published or
+mechanically-accepted non-string selector (numeric, boolean,
+date/datetime, NumPy/pandas scalar variants, <code>bytes</code>, <code>complex</code>,
+<code>frozenset</code>, a stable custom hashable/comparable object, a <code>str</code>
+subclass, or <code>numpy.str_</code>) for this specific nominated-selector role only:
+only a <code>str</code> physical column label reloads under the identical name on
+every currently maintained frame-plus-metadata carrier (JSON directory,
+XLSX, ODS). A numeric selector, for example, previously worked
+in-process but silently broke a later lookup after any of these carrier
+round trips, because the referenced physical column itself retypes on
+reload even though the persisted metadata copy does not. Non-string
+physical DataFrame columns remain fully legal everywhere they are not
+nominated as a <code>row_keys</code>/dense-axis selector (the general physical-label
+contract is unchanged); whitespace-only string selectors remain accepted.</p>
+</li>
+<li>
+<p>New capability / breaking change (<code>FTR-TRUSTED-INGRESS-P4A</code>, Phase-E slice
+E3&#8201;&#8212;&#8201;metadata substrate admission): every maintained external-to-Domain
+<code>_meta</code> boundary (initial framework ingress, <code>bootstrap_meta</code>,
+<code>apply_overrides</code>) now enforces a bounded metadata substrate grammar after
+Legend Blocks' own shape normalization: <code>_meta</code> is either absent/<code>None</code>, or
+an exact <code>dict</code> whose recursive ordinary containers are exact <code>dict</code>/<code>list</code>,
+whose dict keys are exact <code>str</code> with no exceptions, and whose leaves are an
+E1-admitted ordinary Scalar (string, boolean, number, date, datetime, or a
+recognized missing carrier). A shared acyclic alias (the same nested
+object reachable from two independent branches) is permitted; a self- or
+indirect cycle is rejected. Legend Blocks' complete normalized output is
+checked by this same walker, so an out-of-grammar node cannot escape by
+virtue of coming from a delegate. Rejection is atomic and non-mutating: a
+violation anywhere in the tree leaves the caller&#8217;s <code>_meta</code> object graph
+completely unchanged and aborts before any pipeline step, cleanup, or
+saver runs.</p>
+<div class="paragraph">
+<p>Two carrier-reachable but never-semantically-supported shapes are narrowed as
+part of this slice, both previously silently tolerated by the retained
+legacy-read paths with no prior compatibility disposition:</p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><strong>YAML directory metadata sidecar (Option A).</strong> In a <code>yaml_dir</code> input, the
+file stem <code>_meta</code> is now reserved for framework metadata: at most one of
+<code>_meta.yaml</code>/<code>_meta.yml</code> may be present, it is safe-loaded and must be a
+mapping at its root, and it is placed directly at <code>Frames["_meta"]</code>&#8201;&#8212;&#8201;never materialized as an ordinary DataFrame sheet. Both spellings present,
+or a non-mapping (including empty-file) root, is rejected at the YAML
+backend/parse boundary with a clear error. <strong>Migration:</strong> a <code>yaml_dir</code>
+input that used <code>_meta.yaml</code>/<code>_meta.yml</code> as an ordinary data sheet (it was
+never a supported roundtrip contract&#8201;&#8212;&#8201;the existing YAML saver already
+skips writing a <code>_meta</code> sheet) must rename that file; a <code>yaml_dir</code> input
+that intends framework metadata must supply a plain mapping. The YAML
+saver continues to omit <code>_meta</code> on write; no new roundtrip promise is
+added.</p>
+</li>
+<li>
+<p><strong>Legacy Python-literal and YAML-tag special metadata values/keys.</strong> The
+legacy XLSX/ODS <code>workbook_meta_blob</code> <code>ast.literal_eval</code> fallback, and
+YAML&#8217;s <code>!!set</code>/<code>!!binary</code> tags reachable from an authored or structured
+<code>_meta.yaml</code> sidecar, can produce a <code>tuple</code>, <code>set</code>, <code>bytes</code>, or <code>complex</code>
+metadata value, or a non-<code>str</code> (<code>int</code>/<code>bool</code>/<code>float</code>/<code>None</code>/<code>tuple</code>)
+dictionary key. The legacy/YAML carrier parse itself is unchanged and
+still recovers the surrounding dict; E3 now deterministically rejects the
+specific unsupported node at its exact metadata path, with a safe
+diagnostic that never renders the rejected value or key. None of these
+shapes is silently coerced (no <code>str()</code>/<code>list()</code> conversion) or silently
+admitted. <strong>Migration:</strong> a workbook or metadata sidecar carrying one of
+these legacy/tagged shapes must be rewritten with an application-specific,
+meaning-aware replacement (e.g. a <code>set</code> as a <code>list</code>) before it can be
+re-ingested; ordinary metadata already limited to <code>dict</code>/<code>list</code>/<code>str</code>-key/
+Scalar shapes is unaffected.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>No existing maintained producer/consumer needed a compatibility exception:
+current XRef dense-axis metadata (<code>row_keys</code>, <code>dense_axes</code> <code>key</code>/<code>keys</code>,
+<code>resolved.row_identities</code>, and the Compact Multiaxis-forwarded <code>row_keys</code>
+copy) was already narrowed to exact non-empty <code>str</code> selectors by the
+independently accepted <code>FTR-XREF-PHYSICAL-LABEL-METADATA-AUTHORITY-P4A</code>
+(noted above) and passes this new substrate check unchanged, with no
+XRef-specific E3 exception. Family-level metadata semantics (Legend Blocks
+entry validity, XRef business rules, workbook-view shapes, and so on) remain
+exactly as validated by their own owning features; E3 only enforces the
+structural substrate, not per-family meaning.</p>
+</div>
+</li>
+<li>
+<p>Behavior change (<code>FTR-TRUSTED-INGRESS-P4A</code>, Phase-E slice E4&#8201;&#8212;&#8201;R1 finding
+scalarization): <code>validate_references</code> and <code>validate_graph&#8217;s warn-mode
+finding reports now emit only a Scalar-compatible `row_index</code> cell,
+unconditionally. A <code>pandas.MultiIndex</code> row index becomes a comma-joined
+diagnostic String (e.g. <code>"east, 1"</code>) instead of a raw Python <code>tuple</code>
+object. Any other row-index label that is neither an admitted Scalar
+carrier nor a <code>MultiIndex</code> tuple (reachable today because no row-index
+grammar is yet selected for arbitrary hashable DataFrame indexes) is
+replaced by the stable placeholder String <code>"&lt;unsupported row index&gt;"</code>
+rather than reaching the report cell as a raw object. An ordinary (default
+integer-indexed) <code>row_index</code> is unchanged and is not stringified.
+<strong>Migration:</strong> any consumer that inspected <code>row_index</code> on a finding and
+relied on it being a Python <code>tuple</code>, or on it being the original raw index
+object for a non-default index, must switch to parsing the String label
+instead; none of this was ever a documented contract, and the label is a
+diagnostic projection, not a reversible codec.</p>
+</li>
+<li>
+<p>New capability / breaking change (<code>FTR-TRUSTED-INGRESS-P4A</code>, Phase-E slice
+E5&#8201;&#8212;&#8201;framework-managed macro wiring): the single macro seam every
+router-backed entry point funnels through (<code>orchestrate</code>, and therefore
+<code>sheets-run</code>, <code>run_app</code>, the compatibility orchestrator shim,
+<code>sheets-schema-maintain</code>/<code>run_schema_maintenance</code>) now enforces the
+complete Trusted Ingress E1-E4 contract end to end, rather than only the
+metadata-substrate slice (E3) it already enforced. Two user-visible
+consequences:</p>
+<div class="openblock">
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Initial ordinary structural/Scalar admission is now wired in.</strong> A router-
+loaded top-level carrier that is not an ordinary <code>DataFrame</code>/<code>ExactTable</code>
+(e.g. a raw non-tabular value under a non-<code>_meta</code> key), a DataFrame whose
+physical columns fail the existing addressability contract, or any
+ordinary cell that is not one of the six admitted Scalar categories, is
+now rejected before the first configured step runs&#8201;&#8212;&#8201;previously this
+E1/E2 representation existed but was not reachable from the macro.
+<strong>Migration:</strong> none for conformant input; a payload that only worked
+because this check was unreachable must be corrected at the source.</p>
+</li>
+<li>
+<p><strong>A configured step&#8217;s returned candidate is now conservatively
+re-established when it is not an exact reviewed transition.</strong> Every step
+is classified against the closed, exact E4 transition set (the
+<code>add_lookup_helpers(helper_value_mode="formula")</code> FormulaSpec
+introduction, <code>contract_grouped_xref</code>/<code>reconstruct_grouped_matrix</code>
+GroupedMatrix introduction, their one admitted nested composition, both
+<code>expand_grouped_xref</code> reverse endpoints, and <code>write_artifact_manifest&#8217;s
+manifest role). A step outside that exact set&#8201;&#8212;&#8201;any built-in without an
+exact certificate, dotted-plugin step, or caller-supplied `BoundStep</code>,
+regardless of what it wraps&#8201;&#8212;&#8201;has its returned candidate pass ordinary
+re-establishment before the next step, final cleanup, or save; a
+candidate that cannot become ordinary (a surviving <code>FormulaSpec</code>,
+<code>GroupedMatrix</code>, or non-Scalar manifest cell) now raises before any later
+Domain processing or save runs. At final save, a <code>GroupedMatrix</code>/
+<code>LookupFormulaSpec</code> role may reach only an <code>xlsx</code>/<code>ods</code> output kind and
+the artifact-manifest <code>source_frames</code> role may reach a save only after
+whole-frame <code>_meta.pipeline_cleanup</code> removal of its frame; any other
+combination now raises
+<code>application.managed_pipeline.UnauthorizedControlledRoleAtSinkError</code>
+before the saver runs, instead of reaching an incapable adapter.
+<strong>Migration:</strong> a pipeline that relied on a non-formula-mode helper, a
+grouped/manifest role surviving to an unsupported output kind, or any
+other previously-unenforced uncertified-return shape must either drop the
+artifact manifest&#8217;s source frame via <code>configure_pipeline_cleanup</code> before
+save, target a FormulaSpec-capable sink (<code>xlsx</code>/<code>ods</code>), or otherwise
+ensure every configured step&#8217;s return is ordinary before it reaches the
+saver; the maintained FormulaHelper &#8594; GroupedMatrix &#8594; XLSX/ODS path and
+every other currently maintained flow are unaffected.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p><code>run_pipeline</code> itself remains unchanged and unwired: a caller invoking it
+directly (bypassing <code>orchestrate</code>) still receives no automatic ingress or
+re-establishment, exactly as before.</p>
+</div>
+</li>
+<li>
+<p>Safety/correctness narrowing&#8201;&#8212;&#8201;FK helper / DCP deletion authority
+(Derived Artifact / FK Helper Deletion Authority workstream): durable FK
+relation policy (<code>_meta.helper_policies.fk</code>) alone no longer authorizes
+physical deletion of an FK-attributed helper column, in either
+<code>remove_fk_helpers</code> or <code>apply_derived_column_policy</code>. Previously, a
+durable relation that merely <strong>named</strong> a column as a potential FK helper
+could cause that column to be dropped even without current evidence that
+this pipeline run actually produced it&#8201;&#8212;&#8201;risking deletion of a
+same-label foreign column a durable relation
+happened to also name. Deletion now requires current, truthful transient
+producer provenance (<code>_meta.derived.sheets.*.helper_columns</code>), unless
+another independently accepted deletion authority applies. <strong>Migration
+consequence:</strong> generic persistence prunes transient <code>_meta.derived</code>
+provenance at the persistence boundary, so after a reimport with no fresh
+helper-materialization pass in the same session, a durable FK relation
+that still names a helper column can no longer cause it to be dropped;
+the column survives with a non-raising diagnostic. The supported durable
+cleanup route for this case remains explicit Workbook-View
+<code>_meta.sheets[*].helper_columns</code> declaration (via
+<code>configure_workbook_view</code>), which a pipeline author declares
+deliberately and which is unaffected by this narrowing.</p>
+</li>
+<li>
+<p>Bug fixes&#8201;&#8212;&#8201;<code>apply_derived_column_policy</code> mismatch checking for
+<code>enrich_lookup</code> helpers (FK / Reference-Helper Domain-family hardening,
+F-002 Slice 2): two intentional, user-observable corrections to
+<code>warn_on_mismatch</code>/<code>fail_on_mismatch</code>.</p>
+<div class="openblock">
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Formula-mode helper mismatch checking is now correct.</strong> Previously, a
+<code>helper_value_mode="formula"</code> helper cell (a <code>LookupFormulaSpec</code>, not a
+copied scalar) was compared via <code>str(LookupFormulaSpec)</code> against the plain
+canonical lookup value&#8201;&#8212;&#8201;this essentially always mismatched, spuriously
+reporting <code>derived_value_mismatch</code> under <code>warn_on_mismatch</code> and always
+raising under <code>fail_on_mismatch</code>, for every correctly-enriched formula-mode
+row. Formula-mode cells are now compared structurally: the cell&#8217;s declared
+<code>(lookup_sheet, source_key_column, lookup_key_column, lookup_value_column)</code>
+identity against the relationship the provenance declares. A structural
+divergence is now reported under a new <code>rule_type</code>,
+<code>derived_formula_mismatch</code>, distinct from <code>derived_value_mismatch</code>; a
+structurally-correct formula cell now produces no finding. This
+combination never worked correctly before, so there is no valid prior
+state to preserve; treated as an explicit, evidenced bug fix, not a
+claim of zero compatibility risk. Comparison is per-cell (by the cell&#8217;s
+own runtime type), so a formula-mode column with one row manually
+overwritten by a literal value is checked as a scalar edit on that row
+alone. A multi-key symmetric <code>enrich_lookup</code> (<code>keys: [&#8230;&#8203;]</code> with more than
+one key) combined with a formula-mode helper cannot be structurally
+verified by the current single-key <code>LookupFormulaSpec</code> representation
+(a pre-existing, unrelated <code>enrich_lookup</code> write-path characteristic,
+unchanged by this fix) and is now reported as <code>unverifiable_enrich_lookup</code>
+rather than silently certified as structurally correct or incorrectly
+flagged.</p>
+</li>
+<li>
+<p><strong>Duplicate lookup keys are no longer silently tolerated.</strong> Previously, if
+the current lookup frame had duplicate rows on the join key(s) at
+mismatch-check time, <code>apply_derived_column_policy</code> picked the first
+matching row as canonical ("first occurrence wins") and certified
+mismatch results from it&#8201;&#8212;&#8201;an unowned tie-break with no counterpart in
+<code>enrich_lookup&#8217;s own contract, which instead rejects duplicate lookup
+keys outright at enrichment time. Duplicate lookup keys at mismatch-check
+time are now reported as `unverifiable_enrich_lookup</code> (a warning under
+<code>warn_on_mismatch</code>, a failure under <code>fail_on_mismatch</code>) instead of
+silently certifying a value from an arbitrary row. <strong>Migration:</strong> a
+pipeline that relied on the previous silent pass for a lookup frame that
+had gained duplicate keys after enrichment time now receives a finding (or
+a raise under <code>fail_on_mismatch</code>) instead; deduplicate the lookup frame,
+or reconcile provenance, before the mismatch-check step.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_0_2_1_released">2. 0.2.1 (released)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>These notes describe the <code>0.2.1</code> release line on top of <code>v0.2.0</code>.
+The release is intended as a stable foothold before the planned
+contract-first domain/meta reset around a Functional-Model-derived bridge DSL.
+It preserves the current working runtime surface, captures the Functional Model
+catch-up work, and records the architectural decision that future domain/meta
+changes may intentionally break historical internals when doing so reduces
+sediment.</p>
+</div>
+<div class="paragraph">
+<p><code>0.2.1</code> remains pre-1.0 software. It is not a long-term compatibility promise.
+Its purpose is to provide an installable PyPI anchor before larger internal
+domain/meta changes begin.</p>
+</div>
+<div class="sect2">
+<h3 id="_functional_model_project_memory_and_reset_direction">2.1. Functional Model, Project Memory, and reset direction</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>The Functional Model was extended from requirement-inquiry material rather
+than from implementation details alone. New or updated use-case concepts
+cover Cell Codec, Compact Multiaxis, Sparse Defaults, derived frame views,
+validation use cases, header shape projection, hierarchical config
+projection, aggregate/pivot reconciliation, workbook-view boundary behavior,
+and XRef/discriminator composition.</p>
+</li>
+<li>
+<p>The repository-wide June-2026 transformation/capability family inventory was
+archived in cold storage and linked from Project Memory as the canonical
+reference for implemented capability families and Functional Model coverage
+status. The inventory remains evidence material, not a backlog or second
+source of truth.</p>
+</li>
+<li>
+<p>Future requirement inquiries were preserved for later work, including nested
+structures, typed cell values, conditional follow-up table views, and
+multi-row header presentation. These are recorded as future concepts, not as
+implemented <code>0.2.1</code> runtime capabilities.</p>
+</li>
+<li>
+<p><code>ADR-CONTRACT-FIRST-DOMAIN-META-REWRITE</code> accepts a contract-first
+domain/meta reset around a stabilized bridge DSL. The ADR explicitly frames
+the domain/IO seam as a shared <code>Frames + Meta</code> language whose writer, reader,
+lifecycle, conflict, and deletion rules should be derived from Functional
+Model use cases. It preserves adapter/parser/renderer knowledge, allows
+targeted deletion of obvious duplicate paths, and rejects recreating the
+current registry-scale surface under new names.</p>
+</li>
+<li>
+<p>Project Memory now records the bridge-DSL reset as a high-weight
+Domain/Meta steering decision. This is intended to counterbalance overly
+conservative readings of the existing documentation: low external adoption
+makes bounded breaking changes acceptable when they reduce historical
+implementation sediment.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_spreadsheet_backends_and_roundtrip_behavior">2.2. Spreadsheet backends and roundtrip behavior</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>User-authored text orientation (vertical / rotated cells) is preserved
+through XLSX roundtrips under the <code>text_orientations</code> presentation metadata
+key. ODS roundtrips also preserve text orientation: <code>style:rotation-angle</code>
+is written on <code>style:table-cell-properties</code>, the carrier ODF defines for
+cell text rotation, so the rotation is honoured by external consumers such
+as LibreOffice Calc rather than only by the project&#8217;s own parser.</p>
+</li>
+<li>
+<p>ODS column widths are preserved across render/parse via
+<code>style:table-column-properties</code> with an approximate Excel-character / cm
+conversion. The conversion is documented as approximate; widths authored by
+external ODS producers may not round-trip with byte-exact XLSX parity.</p>
+</li>
+<li>
+<p>The ODS presentation-metadata extractors (column widths, text orientations)
+share the grid parser&#8217;s defense against sheet-wide LibreOffice formatting
+fillers: extraction is clipped to the parsed content extent so that a
+<code>number-rows-repeated</code> / <code>number-columns-repeated</code> filler carrying a
+rotation or column-width style cannot materialize one metadata entry per
+implied address, and the same <code>ParserLimits</code> are honoured on per-axis and
+per-cell bases as defense-in-depth.</p>
+</li>
+<li>
+<p>User-authored horizontal cell alignment is preserved through XLSX and ODS
+roundtrips under the <code>horizontal_alignments</code> presentation metadata key.
+Canonical vocabulary is intentionally narrow in this slice — only <code>left</code>,
+<code>center</code>, and <code>right</code> are recognised; XLSX <code>general</code> / <code>fill</code> / <code>justify</code> /
+<code>distributed</code> / <code>centerContinuous</code> are dropped on read and never emitted on
+write. The ODS write path emits <code>fo:text-align</code> on
+<code>style:paragraph-properties</code> (the ODF-defined carrier for cell text
+alignment); the read path accepts both absolute (<code>left</code> / <code>right</code>) and
+locale-neutral (<code>start</code> / <code>end</code>) forms and normalises to the canonical
+absolute encoding so re-imports under different locales remain stable.</p>
+</li>
+<li>
+<p>The XLSX renderer now merges alignment attributes when more than one render
+op touches <code>cell.alignment</code> (currently <code>SetTextOrientation</code> and
+<code>SetHorizontalAlignment</code>). Existing rotation behaviour is unchanged when no
+other alignment op is present; cells that combine rotation and horizontal
+alignment now retain both attributes regardless of op-dispatch order.</p>
+</li>
+<li>
+<p>The ODS horizontal-alignment extractor inherits the same content-extent
+clipping and <code>ParserLimits</code> enforcement as the existing text-orientation
+and column-width extractors, so a sheet-wide "select all + left-align"
+filler cannot materialise one metadata entry per implied address.</p>
+</li>
+<li>
+<p>The presentation-metadata families <code>column_widths</code>, <code>text_orientations</code>,
+and <code>horizontal_alignments</code> now share a single replace-or-clear policy on
+parse: parsed carrier state is authoritative for the sheet-local entry,
+and clearing the visible carrier removes any persisted entry for that
+sheet so the next roundtrip cannot silently reapply formatting the user
+has removed. Previously this behaviour was implemented only for
+<code>horizontal_alignments</code>; <code>text_orientations</code> and <code>column_widths</code>
+retained merge-only semantics and could surface stale embedded metadata
+after a cleared visible carrier. <strong>Behavioural note for <code>column_widths</code>:</strong>
+removing a custom column width from the visible carrier now removes the
+embedded entry as well, where previously the entry persisted. This is a
+deliberate alignment of behaviour across the three families and matches
+user intent ("I cleared this; do not reapply it").</p>
+</li>
+<li>
+<p>User-authored vertical cell alignment is preserved through XLSX and ODS
+roundtrips under the <code>vertical_alignments</code> presentation metadata key.
+Canonical vocabulary is intentionally narrow in this slice — only <code>top</code>,
+<code>center</code>, and <code>bottom</code> are recognised; XLSX <code>justify</code> / <code>distributed</code>
+and ODS <code>automatic</code> are dropped on read and never emitted on write. The
+ODS write path emits <code>style:vertical-align</code> on
+<code>style:table-cell-properties</code> (the ODF-defined carrier for cell
+vertical alignment) and applies the intrinsic ODF ↔ OOXML vocabulary
+remap — canonical <code>center</code> serialises as ODF <code>middle</code> on write and ODF
+<code>middle</code> normalises to canonical <code>center</code> on read — so cross-backend
+roundtrips stay stable. The new family joins
+<code>column_widths</code> / <code>text_orientations</code> / <code>horizontal_alignments</code> under
+the same authoritative-carrier semantics.</p>
+</li>
+<li>
+<p>The hidden XLSX / ODS <code>_meta</code> carrier now roundtrips the canonical
+workbook meta as one coherent mapping even when a sheet-level
+representation accidentally leaks into the writer or a malformed file
+carries a nested <code>workbook_meta_blob</code> wrapper. The carrier-local
+helper field <code>workbook_meta_blob</code> is recognised as a hidden-sheet
+convention only, so it can no longer shadow or structurally replace
+<code>_meta.workbook_view</code> during readback. This restores XLSX workbook-view
+readback parity with ODS for declarative <code>project_by_role</code> pipelines.
+See <code>BUG-XLSX-WORKBOOK-VIEW-BLOB-READBACK-P4A</code>.</p>
+</li>
+<li>
+<p>As a follow-up hardening, <code>canonicalize_workbook_meta</code> now strips the
+sheet-level export marker keys (<code>author</code>, <code>exported_at</code>, <code>version</code>)
+from canonical workbook meta whenever they carry the <code>MetaPass</code>-default
+empty signature (<code>None</code> / empty string). They describe the hidden
+<code>_meta</code> sheet itself, not the canonical workbook meta contract. Without
+the strip, a corrupt or empty inner blob would leave the outer wrapper
+visible as if it were canonical content, hiding the absence of
+<code>workbook_view</code> behind wrapper noise (the post-<code>e939623</code> residual
+symptom). Marker keys with caller-assigned non-empty values still
+round-trip unchanged. See
+<code>BUG-XLSX-WORKBOOK-VIEW-CANONICAL-META-LOSS-P4A</code>.</p>
+</li>
+<li>
+<p>The persistence boundary now applies a narrow Intent-vs-Resolution rule for
+the cross-carrier <code>_meta</code> sidecar failure observed in the worldbuilding
+consumer. Persisted meta keeps declarative intent, but drops three
+reconstructible resolution facets from the captured ODS-produced sidecar:
+<code>legend_blocks[<strong>].resolved</code>, <code>xref_crosstable[</strong>].dense_axes.resolved</code>, and
+<code>xref_crosstable[*].column_keys</code>. This prevents backend-produced resolved
+layout / axis snapshots from poisoning later XLSX workbook-view readback
+while leaving broader lifecycle classification to the existing metadata
+follow-up FTRs. See <code>BUG-CROSS-CARRIER-META-ROUNDTRIP-P4A</code>.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_pipeline_steps_and_role_based_projection">2.3. Pipeline steps and role-based projection</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>New pipeline step <code>project_by_role</code> reorders / retains a projected frame&#8217;s
+columns by foundation column-role (<code>row_identity</code>, <code>display_helper</code>,
+<code>matrix_value</code>). <code>direction:</code> is required (<code>outbound</code> retains all three
+roles; <code>inbound</code> drops <code>display_helper</code>); there is no silent default.
+Optional <code>role_order:</code> permutes the per-direction default order;
+including <code>display_helper</code> in an inbound <code>role_order</code> is a validation
+error. Optional <code>helper_columns:</code> and <code>key_columns:</code> are interim
+per-call-site overrides that win over scattered upstream sources.
+See <code>FTR-DYNAMIC-FRAME-PROJECTION-IMPL-P5</code>.</p>
+</li>
+<li>
+<p>Role classification is <strong>consumed</strong> from the foundation taxonomy
+defined in <code>FTR-PROJECTED-FRAME-COLUMN-SEMANTICS-P5</code>; the step does
+not introduce a parallel role vocabulary. A new shared resolver
+module (<code>spreadsheet_handling.domain.column_roles</code>) is the single
+source of truth for role detection in the current code base; the
+future targeting implementation slice
+(<code>FTR-DYNAMIC-VIEW-COLUMN-TARGETING-IMPL-P5</code>) will reuse it.</p>
+</li>
+<li>
+<p>The worldbuilding consumer migrated its two projection plugins
+(<code>build_story_cast_matrix_view</code>, <code>build_story_cast_matrix_payload</code>)
+to <code>project_by_role</code> at all 10 current call sites (5 outbound<br>
+5 inbound). The plugin functions remain importable and
+behavior-compatible for one release cycle; per-surface rollback is a
+one-line YAML edit (outbound: restore the <code>*_matrix_enriched</code>
+<code>join_frames output:</code> name and re-introduce the plugin step;
+inbound: restore the <code>*_matrix_payload</code> consumer <code>matrix:</code> name and
+re-introduce the plugin step).</p>
+</li>
+<li>
+<p><code>add_validations</code> rule targets now support role-based column targeting for
+dynamic workbook views. A target can specify <code>roles: [matrix_value]</code>
+(or <code>row_identity</code> / <code>display_helper</code>) and the step expands the target to
+the matching concrete columns using the shared column-role resolver. This
+is intended to replace consumer-side plugin fan-out such as
+<code>add_from_legend_constraints_for_matrix</code> for dynamic matrix columns.
+The first slice covers the validation / constraint metadata path; broader
+presentation-target surfaces remain deferred.</p>
+</li>
+<li>
+<p>FK Helper Slice 2 (v1 retirement): <code>configure_fk_helpers</code> now writes only the
+durable v2 relation model under <code>_meta.helper_policies.fk.relations</code>; the
+legacy v1 per-target dict (<code>_meta.helper_policies.fk.&lt;target_key&gt;</code>) is no
+longer written. Those v2 relations are now durable&#8201;&#8212;&#8201;the persistence
+boundary no longer prunes relations by <code>produced_by.step</code>, so they survive
+into the sidecar / workbook and drive reverse-pipeline cleanup without a v1
+dict. <code>produced_by</code> is retained on each relation as provenance and as the
+cross-producer conflict key. The Dino-shaped replay failure that motivated
+pruning configure relations is now contained at the materialisation point:
+<code>enrich_helpers</code> preserves the source frame&#8217;s column flatness and skips
+relations whose target frame is absent, so a durable relation can no longer
+turn a flat frame into a non-flat one or crash on a missing target. Public
+YAML / CLI surface is unchanged; the persisted <code>_meta</code> shape shrinks (no v1
+dict). <strong>Migration:</strong> an artifact produced by a pre-Slice-2 run (v1 dict kept,
+configure v2 pruned) that is reimported without a fresh forward run has no v2
+cleanup anchor unless it also recorded <code>sheets.&lt;frame&gt;.helper_columns</code>;
+re-run the forward pipeline once to re-bootstrap the durable v2 relation. See
+<code>audit/fk_helper_slice2_v1_retirement_review.adoc</code>.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_schema_maintenance_cli">2.4. Schema maintenance CLI</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>New CLI entry point <code>sheets-schema-maintain</code> performs explicit one-shot
+schema column maintenance over loaded Frames. The supported operations are
+<code>add_column</code>, <code>drop_column</code>, <code>rename_column</code>, and <code>reorder_columns</code>.</p>
+</li>
+<li>
+<p>The command is dry-run by default. Dry-run output is routed to the new
+output-only saver kind <code>discard</code>, which accepts the final Frames payload but
+writes no artifact. User-selected output writes require <code>--write</code>; write mode
+uses the caller-provided <code>--out-kind</code> and <code>--out-path</code>.</p>
+</li>
+<li>
+<p>Schema maintenance reports are emitted outside Frames and outside <code>_meta</code>.
+The report is printed as JSON to stdout by default, or written to the path
+supplied with <code>--report</code>.</p>
+</li>
+<li>
+<p>Known limitations for this maintenance slice: there is no normal
+<code>sheets-run</code> YAML step and no public pipeline registry step; this is not a
+generic migration framework; workbook-header inference and dynamic
+projection schema handling are out of scope; FK relation drops remain
+blocked. (The earlier limitation about residual v1
+<code>_meta.helper_policies.fk</code> per-target entries being blocked no longer
+applies: FK Helper Slice 2 retired the v1 producer write, so no such
+entry is produced; a v1 dict in a legacy sidecar is inert and passes
+through unchanged.)</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_cli_surface_cleanup">2.5. CLI surface cleanup</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Removed the placeholder example console scripts
+<code>sheets-example-json-to-xlsx</code> and <code>sheets-example-xlsx-to-json</code>. The
+maintained public CLI surface is now <code>sheets-run</code> plus the dedicated
+<code>sheets-schema-maintain</code> command.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_known_limitations">2.6. Known limitations</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Still true from <code>0.2.0</code>: visible spreadsheet payload is a string substrate.
+Numeric, boolean, and date/time values in workbook cells are read and written
+as text by both the XLSX and ODS backends; type information present in the
+carrier is not preserved by default. A JSON value such as
+<code>{"sequence_no": 1}</code> may therefore round-trip through a workbook as
+<code>{"sequence_no": "1"}</code>. Typed roundtrip is not configured through workbook
+metadata: there is no <code>cell_codecs</code> metadata family (it is retired), and the
+string substrate is intentional. The decision and documented migration paths
+are recorded in
+<code>ADR-VISIBLE-CELL-TYPING-STRING-SUBSTRATE</code>
+(<code>docs/technical_model/ch03_architecture_decisions/</code>); the closing of
+<code>FTR-VISIBLE-CELL-TYPING-STRATEGY-P5</code> is the explicit project-level
+position behind this behaviour.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_0_2_0_released">3. 0.2.0 (released)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>These notes describe the intended <code>0.2.0</code> release line relative to
+<code>v0.1.0b6</code>, the latest beta tag at the time this draft was written.</p>
+</div>
+<div class="paragraph">
+<p><code>0.2.0</code> is still early-stage, pre-1.0 software. The release is not a promise
+of long-term API or YAML stability. If cut from this line, however, it is no
+longer positioned as a pure beta prototype: the core architecture, public
+documentation entry points, and release process are now stable enough for
+careful early adopters who are willing to follow the documented migration
+notes.</p>
+</div>
+<div class="sect2">
+<h3 id="_highlights">3.1. Highlights</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Repeated export/reimport/promote cycles are stable: the orchestrator now
+projects the runtime <code>_meta</code> onto a persistable contract before any
+backend writes, so runtime-produced FK-helper v2 relations no longer
+leak into persisted sidecars and replay as stale policy on the next run.
+This closes the <code>Frame 'groups' must have flat columns</code> failure that
+the worldbuilding adoption surfaced. The boundary is intentionally narrow
+and post-pipeline: it prevents <strong>new</strong> contamination on every successful
+run, but a <code>_meta.yaml</code> already promoted from a pre-fix run may still
+need a one-time cleanup of its <code>helper_policies.fk.relations</code> entries
+before the next export can succeed. A complete <code>_meta</code> lifecycle
+inventory and load-time sanitizer are deferred to post-release
+follow-ups (<code>FTR-FK-HELPER-POLICY-LIFECYCLE-P4A</code>,
+<code>FTR-META-LIFECYCLE-INVENTORY-P5</code>).</p>
+</li>
+<li>
+<p>ODS reimport is robust against sheet-wide formatting fillers. Workbooks
+edited with whole-sheet selections (e.g. Ctrl+A + format change in
+LibreOffice Calc) no longer trigger uncontrolled allocation in the ODS
+parser, and a typed <code>SpreadsheetTooLargeError</code> surfaces before unbounded
+growth when an input declares implausible dimensions.</p>
+</li>
+<li>
+<p>FK-helper behavior has moved from convention-driven primitive inference to
+explicit relation policy. Pipelines should now configure or infer FK
+relation policy before running FK-helper primitives.</p>
+</li>
+<li>
+<p>Public documentation entry points were clarified: the README, Pages root,
+release notes, user guide, and demo walkthrough paths now form an
+intent-based user journey rather than a collection of repository paths.</p>
+</li>
+<li>
+<p>Release-readiness tooling was tightened with read-only checks for release
+branch state, README link versioning, Pages publication structure, and
+cross-repo release status.</p>
+</li>
+<li>
+<p>The semantic model documentation now gives maintainers and agents a shared
+vocabulary for metadata meaning, lifecycle state, registry authority, and
+FK-helper contract review.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_user_facing_changes">3.2. User-facing changes</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>Ctrl+C</code> during <code>sheets-run</code> now exits cleanly with <code>Interrupted by user.</code>
+on stderr and a non-zero exit code (130, the POSIX SIGINT convention), in
+place of a raw Python traceback. <code>--debug</code> or <code>-vv</code> still shows the full
+traceback for debugging. The installed entry point is now routed through
+the existing <code>run_cli</code> wrapper, so the previously silent <code>Error: &#8230;&#8203;</code>
+short-message path also reaches real users; reinstall with <code>make setup</code>
+or <code>pip install -e .</code> to regenerate <code>.venv/bin/sheets-run</code>.</p>
+</li>
+<li>
+<p>The core README now directs readers to the maintained demo, the latest user
+guide, and the version archive with clearer intent labels.</p>
+</li>
+<li>
+<p>The Pages root now acts as a version archive with links to core release
+notes, the user guide, and the maintained demo walkthrough.</p>
+</li>
+<li>
+<p>Release-bound README links are guarded so PyPI and other frozen release
+contexts use <code>/versions/&lt;tag&gt;/&#8230;&#8203;</code> documentation links instead of drifting
+to <code>/latest/&#8230;&#8203;</code>.</p>
+</li>
+<li>
+<p>The user-guide transformation catalog was updated for the current FK-helper
+model, including the <code>infer_fk_relations</code> configuration step and
+policy-driven FK-helper primitives.</p>
+</li>
+<li>
+<p>Canonical workbook reimport pipelines that declare helper cleanup now remove
+visible FK helper columns again after the persistence boundary strips
+transient <code>_meta.derived</code> provenance.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_transformation_and_pipeline_changes">3.3. Transformation and pipeline changes</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Added <code>infer_fk_relations</code> as an explicit configuration step. It can inspect
+current frames using a bounded naming-convention mode and write resolved FK
+relation policy to <code>_meta.helper_policies.fk</code>.</p>
+</li>
+<li>
+<p><code>configure_fk_helpers</code> remains the explicit/manual FK policy path.
+<code>targets: "auto"</code> was removed from this step; use <code>infer_fk_relations</code>
+when heuristic relation discovery is wanted.</p>
+</li>
+<li>
+<p>FK-helper primitives now consume v2 relation policy under
+<code>_meta.helper_policies.fk</code> (<code>schema_version: 2</code>) instead of inferring
+relation identity from frame, table, or column names.</p>
+</li>
+<li>
+<p><code>add_fk_helpers</code> writes derived helper provenance that includes
+<code>target_key</code>, so later validation and cleanup can use the declared target
+primary-key column.</p>
+</li>
+<li>
+<p><code>remove_fk_helpers</code>, <code>reorder_fk_helpers</code>, and FK-helper validation now use
+policy and/or derived provenance. Missing required policy or provenance is a
+clear error rather than a silent prefix-based fallback.</p>
+</li>
+<li>
+<p><code>apply_derived_column_policy &#8230;&#8203; policy: drop</code> now falls back to durable
+workbook-view helper metadata (<code>_meta.sheets.&lt;frame&gt;.helper_columns</code>) when
+transient <code>_meta.derived.sheets.&lt;frame&gt;.helper_columns</code> is absent after a
+fresh workbook reimport.</p>
+</li>
+<li>
+<p><code>validate_references</code> gained a <code>no_helper_columns</code> assertion rule. Use it
+after cleanup in reimport pipelines to report helper columns that would
+otherwise reach canonical output.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_spreadsheet_backends_and_roundtrip_behavior_2">3.4. Spreadsheet backends and roundtrip behavior</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>The FK column wire format, such as <code>id_(&lt;target&gt;)</code>, remains valid for
+spreadsheet roundtrips. The change is where relation meaning is resolved:
+configuration steps may use the convention, but primitive FK-helper steps do
+not infer relation identity from it.</p>
+</li>
+<li>
+<p>No broad new spreadsheet backend capability is introduced in this release
+draft. XLSX remains the primary spreadsheet backend, and ODS/Calc remains
+the second backend used to prove the spreadsheet contract.</p>
+</li>
+<li>
+<p>Roundtrip-sensitive helper behavior is now more explicit because helper
+cleanup and validation rely on declared policy/provenance rather than hidden
+name-pattern recovery.</p>
+</li>
+<li>
+<p>The orchestrator now owns a narrow persistence boundary that projects
+runtime <code><em>meta</code> onto a carrier-neutral persistable contract before save.
+Top-level <code>derived</code> and <code>_</em>*</code>-prefixed keys are dropped, and FK-helper v2
+relation entries under <code>helper_policies.fk.relations</code> are removed when
+their <code>produced_by.step</code> is <code>configure_fk_helpers</code>. The boundary applies
+to every output kind (JSON/YAML/XML/CSV directories and XLSX/ODS); the
+projection is the same for all carriers, with spreadsheet backends
+layering rendering on top. The <code>pipeline.runner.run_app</code> entry point is
+a thin adapter over <code>orchestrate</code> and inherits the same boundary, so
+there is exactly one load/step/save path in the project. See
+<code>docs/semantic_model/08_lifecycle_and_update_semantics.adoc</code> for the
+boundary contract, the post-pipeline / write-side scope, and the
+explicitly deferred follow-ups (<code>FTR-FK-HELPER-POLICY-LIFECYCLE-P4A</code>,
+<code>FTR-META-LIFECYCLE-INVENTORY-P5</code>).</p>
+</li>
+<li>
+<p>The ODS parser no longer materializes empty cells declared via
+<code>number-columns-repeated</code> / <code>number-rows-repeated</code>. This neutralizes the
+common LibreOffice "select all + apply style" carrier pattern, which
+previously expanded a single empty styled cell into millions of dict entries
+and could exhaust process memory on real-world inputs.</p>
+</li>
+<li>
+<p><code>parse_workbook</code> accepts a new keyword argument <code>limits=ParserLimits(&#8230;&#8203;)</code>
+for defense-in-depth caps on parsed rows, columns, and materialized cells.
+Exceeding a limit raises the typed <code>SpreadsheetTooLargeError</code> (re-exported
+from <code>spreadsheet_handling.io_backends.parser_limits</code>) instead of a raw
+<code>MemoryError</code>. Defaults align with the spreadsheet maxima (1,048,576 rows ×
+16,384 columns) with a 10,000,000 cell ceiling per sheet.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_documentation_and_demo">3.5. Documentation and demo</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Public documentation entry points were realigned around the README, Pages
+root, user guide, release notes, and demo walkthroughs.</p>
+</li>
+<li>
+<p>The maintained demo/tutorial path was realigned with explicit FK-helper
+policy semantics.</p>
+</li>
+<li>
+<p>The semantic model documentation was added under <code>docs/semantic_model/</code>,
+including the problem statement, semantic sets and lifecycle model, registry
+role, adoption strategy, and FK-helper contract matrix.</p>
+</li>
+<li>
+<p>The project evolution narrative was updated so future maintainers and agents
+can understand the release, FK-helper, registry, and semantic-model phases
+without reading every historical FTR.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_migration_notes">3.6. Migration notes</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Pipelines that relied on <code>configure_fk_helpers</code> with <code>targets: "auto"</code> must
+switch to an explicit <code>infer_fk_relations</code> step before FK-helper primitives,
+or provide explicit/manual relation policy through <code>configure_fk_helpers</code>.</p>
+</li>
+<li>
+<p>Pipelines that previously expected <code>add_fk_helpers</code> to discover FK relations
+implicitly from column names must run a configuration step first.</p>
+</li>
+<li>
+<p>Pipelines that relied on prefix fallback during <code>remove_fk_helpers</code> should
+preserve the derived helper provenance written by <code>add_fk_helpers</code> or provide
+explicit policy. Recovery from externally edited workbooks without
+provenance is not part of the normal primitive behavior.</p>
+</li>
+<li>
+<p>FK relation policy now uses the v2 relation-oriented shape under the existing
+<code>_meta.helper_policies.fk</code> root. The relation shape includes
+<code>schema_version: 2</code>, <code>relations</code>, <code>source_frame</code>, <code>source_column</code>,
+<code>target_frame</code>, mandatory <code>target_key</code>, helper fields/columns, and
+<code>produced_by</code> metadata.</p>
+</li>
+<li>
+<p>The old <code>id_(&lt;target&gt;)</code> FK column convention is not removed. It is still the
+cell-level wire format and may be used by <code>infer_fk_relations</code>; it is no
+longer the hidden authority inside primitive FK-helper execution.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_internal_architecture_and_maintainability">3.7. Internal architecture and maintainability</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>Registry contract lifecycle guidance now distinguishes current state, target
+state, and transition bridges so registry entries can describe migrations
+without overstating runtime truth.</p>
+</li>
+<li>
+<p>Registry artifacts were relocated to root-level <code>registries/</code> paths while
+documentation keeps the reviewed registry contract context.</p>
+</li>
+<li>
+<p>Release tooling now includes read-only helpers for release branch validation,
+Pages publication checks, cross-repo release status, and README link
+versioning.</p>
+</li>
+<li>
+<p>GitHub Actions workflow permissions were tightened to minimal defaults with
+job-level overrides where required.</p>
+</li>
+<li>
+<p>The FK-helper semantic contract matrix and guards reduce the chance that
+future refactors reintroduce primitive inference or stale registry wording.</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_known_limitations_2">3.8. Known limitations</h3>
+<div class="ulist">
+<ul>
+<li>
+<p><code>0.2.0</code> remains pre-1.0. Public behavior is more coherent than the beta
+prototype line, but compatibility promises are intentionally limited.</p>
+</li>
+<li>
+<p>Historical beta-by-beta release notes are not reconstructed here. This page
+focuses on changes since <code>v0.1.0b6</code>.</p>
+</li>
+<li>
+<p>Some semantic-model adoption work is intentionally documentation-first.
+Future transformation families still need their own adoption slices.</p>
+</li>
+<li>
+<p>REVIEW-002 residual maintainability items remain tracked outside these
+release notes. They are not treated as release blockers unless later review
+promotes them to 0.2.0 scope.</p>
+</li>
+<li>
+<p>The FK-helper policy model does not yet claim to cover composite keys,
+generic relation modeling, or every possible recovery flow for externally
+edited workbooks.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_related_links">4. Related Links</h2>
+<div class="sectionbody">
+<div class="ulist">
+<ul>
+<li>
+<p><a href="../user-guide/">User Guide</a></p>
+</li>
+<li>
+<p><a href="https://github.com/StefanSchade/spreadsheet-handling"><code>spreadsheet-handling</code>
+source repository</a></p>
+</li>
+<li>
+<p><a href="https://github.com/StefanSchade/spreadsheet-handling-demo"><code>spreadsheet-handling-demo</code>
+user entry point</a></p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+Version v0.2.2<br>
+Last updated 2026-10-15 15:59:31 UTC
+</div>
+</div>
+</body>
+</html>

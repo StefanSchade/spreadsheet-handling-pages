@@ -438,9 +438,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <h1>Project <code>spreadsheet-handling</code>&#8201;&#8212;&#8201;User Guide</h1>
 <div class="details">
-<span id="revnumber">version v0.2.1,</span>
-<span id="revdate">2026-06-24T11:52:36+00:00</span>
-<br><span id="revremark">6b83df1</span>
+<span id="revnumber">version v0.2.2,</span>
+<span id="revdate">2026-10-15T15:59:49+00:00</span>
+<br><span id="revremark">887dd397</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">Table of Contents</div>
@@ -852,6 +852,16 @@ and <code>compact_transforms.adoc</code>.</p>
   First-run pipelines with no prior relation omit this parameter.</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>drop_source</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Assert that the expanded relation fully supersedes the matrix and mark the
+  matrix for carrier-neutral final domain cleanup
+  (<code>_meta.pipeline_cleanup</code>).  Rejected when an explicit <code>value_columns</code>
+  subset would leave unexpanded matrix columns behind.  Default: <code>false</code>.
+  Workbook helper/technical columns must be removed by their owning
+  projection step (or made explicit) before a full expansion.</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Override the step name shown in logs.</p></td>
@@ -860,7 +870,10 @@ and <code>compact_transforms.adoc</code>.</p>
 </table>
 <div class="paragraph">
 <p><strong>Losslessness condition</strong>: lossless when <code>drop_empty: false</code>, or when the
-original matrix had no empty cells in the expanded columns.</p>
+original matrix had no empty cells in the expanded columns.  With
+<code>drop_source: true</code>, the checkable value-loss condition (an unexpanded
+<code>value_columns</code> subset) fails fast; shape recovery of empty-only columns
+under <code>drop_empty: true</code> needs dense column intent or a retained matrix.</p>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -906,15 +919,16 @@ original matrix had no empty cells in the expanded columns.</p>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>column_key</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Field name</strong> in the relation that holds the column-axis address values.
-  Defaults to the value stored in meta by the preceding <code>expand_xref</code> (or the
-  literal <code>column_key</code>).  This is a field name, not a list of axis values —
-  see <code>column_keys</code> below.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><strong>Field name</strong> in the relation that holds the column-axis address values
+  (default: the literal <code>column_key</code>; configure it to match the preceding
+  <code>expand_xref</code>).  This is a field name, not a list of axis values — see
+  <code>column_keys</code> below.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>value</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Column in the relation holding cell values. Defaults to meta-persisted value.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Column in the relation holding cell values (default: the literal <code>value</code>;
+  configure it to match the preceding <code>expand_xref</code>).</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>column_keys</code></p></td>
@@ -938,6 +952,17 @@ original matrix had no empty cells in the expanded columns.</p>
   explicit <code>column_keys</code> exactly (consistency contract, not precedence).</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>drop_source</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Assert that the contracted matrix fully supersedes the relation and mark
+  the relation for carrier-neutral final domain cleanup
+  (<code>_meta.pipeline_cleanup</code>).  Rejected when the relation carries fields
+  beyond <code>row_keys</code> + <code>column_key</code> + <code>value</code> (the matrix represents nothing
+  else), or when the matrix columns do not cover every relation column key
+  (a matrix that silently drops relation pairs cannot supersede the
+  relation).  Default: <code>false</code>.</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Override the step name shown in logs.</p></td>
@@ -946,7 +971,85 @@ original matrix had no empty cells in the expanded columns.</p>
 </table>
 <div class="paragraph">
 <p><strong>Losslessness condition</strong>: lossless when relation rows are unique per
-(row_keys, column_key) combination.</p>
+(row_keys, column_key) combination.  With <code>drop_source: true</code>, uncovered
+relation column keys fail fast instead of silently dropping pairs.</p>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Persisted XRef intent</div>
+<div class="paragraph">
+<p>Both steps record one entry under <code>_meta.xref_crosstable.&lt;id&gt;</code> holding the
+minimal feature-local inverse intent: <code>relation</code> and <code>matrix</code> frame names,
+<code>row_keys</code>, and optional <code>dense_axes.rows_from</code> / <code>columns_from</code>.  The
+<code>relation</code> / <code>matrix</code> names may legitimately reference a frame that final
+domain cleanup has removed — a reverse pipeline needs exactly that intent to
+recreate the absent side.  Run-local resolution (<code>column_keys</code>,
+<code>dense_axes.resolved</code>) never survives the persistence boundary.  When intent
+is looked up by frame name and more than one entry matches, the lookup fails
+(in the transformations, in sparse-default targeting, and in column-role
+resolution alike); name the intended transform explicitly — or pass explicit
+<code>key_columns</code> to role-consuming steps — to disambiguate.</p>
+</div>
+</div>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Carrier-stable column identities</div>
+<div class="paragraph">
+<p>XRef distinguishes <strong>matrix-axis identities</strong> from <strong>physical frame column
+labels</strong>, and applies a different rule to each.</p>
+</div>
+<div class="paragraph">
+<p><strong>Matrix-axis identities</strong> — the values that participate in the persisted
+matrix/relation roundtrip — must be <strong>unique, non-empty strings</strong>.  Spreadsheet
+carriers realize matrix headers as strings, so numeric, missing
+(<code>None</code>/<code>NaN</code>/<code>pd.NA</code>), mixed-type (<code>1</code> vs <code>"1"</code>), duplicate, or unhashable
+identities would silently change type, collide, or produce non-scalar cells
+on readback.  Both steps enforce this on every axis-identity source —
+relation <code>column_key</code> values, explicit and metadata-derived <code>column_keys</code>,
+dense-axis-derived identities (live and stored), scoped <code>base_relation</code>
+column identities, and the full physical <strong>matrix</strong> header row (matrix headers
+are themselves axis identities) — and fail with explicit diagnostics before
+any <code>drop_source</code> cleanup command is recorded.  Explicit <code>value_columns</code> are
+validated as axis identities <strong>before</strong> they are compared against <code>row_keys</code>,
+so a missing, numeric, or array-valued selector fails with the same
+diagnostic rather than a raw pandas/NumPy error.</p>
+</div>
+<div class="paragraph">
+<p><strong>Physical frame column labels</strong> — the labels used to address a column on a
+participating relation or <code>base_relation</code> frame — carry a weaker, still
+strict contract: they must be non-missing, hashable, uniquely and
+deterministically comparable, and safe for scalar column selection (so
+<code>row[label]</code> yields a scalar, never a <code>Series</code>).  They are <strong>not</strong> required to
+be strings: a unique numeric label, for example, is accepted.  Missing-like
+(<code>None</code>/<code>NaN</code>/<code>pd.NA</code>), ambiguous-equality (for example a multi-element
+array), unhashable (for example a Python <code>list</code>), or duplicate physical
+labels are rejected before any output or cleanup.  Hierarchical/tuple
+physical labels and the separation of stable
+technical identity from visible header labels remain future design work;
+they are neither promised nor prohibited by a global string-only rule.</p>
+</div>
+<div class="paragraph">
+<p>Malformed field declarations fail the same way, before any output or
+cleanup: duplicate physical column labels on the relation, matrix, or
+<code>base_relation</code> frame; duplicate configured <code>row_keys</code>; and explicit
+<code>value_columns</code> that overlap <code>row_keys</code>.</p>
+</div>
+<div class="paragraph">
+<p><strong><code>row_keys</code> and dense-axis selectors are narrower still.</strong>  A physical label
+is <strong>nominated</strong> as a durable selector reference the moment it is configured as
+<code>row_keys</code> (either step) or a dense-axis <code>rows_from</code>/<code>columns_from</code>
+<code>key</code>/<code>keys</code>&#8201;&#8212;&#8201;directly, or inherited through Compact Multiaxis&#8217;s forwarding.
+That selection is also persisted as <code>_meta</code> intent, so the label must
+additionally be an exact, non-empty native string
+(<code>type(value) is str and value != ""</code>, no coercion): only a string physical
+column label reloads under the identical name on every currently maintained
+carrier (JSON directory, XLSX, ODS).  A numeric physical label, for example,
+is no longer accepted in this specific role, even though it remains a fully
+legal ordinary physical column label everywhere it is <strong>not</strong> nominated as a
+selector.  Whitespace-only strings remain accepted.</p>
+</div>
+</div>
 </div>
 <div class="listingblock">
 <div class="content">
@@ -1055,7 +1158,108 @@ chain or independently for coded single-column cells.</p>
 <p>See also: concept doc <code>technical_model/ch04_concepts/compact_transforms.adoc</code>.</p>
 </div>
 <div class="paragraph">
-<p><strong><code>decode_cell_values</code> parameters</strong></p>
+<p>Both steps require <strong>explicit codec intent</strong>; there is no metadata fallback
+and no <code>_meta.cell_codecs</code> entries are written. Two contracts exist:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><strong>Position-based</strong> (<code>codec_intent</code>): several participating columns are
+joined into one compact column and split back by position.</p>
+</li>
+<li>
+<p><strong>Historical code-row</strong> (<code>mode</code> + codec parameters): rows of codes are
+joined into a delimited cell and split back. Consumed primarily by the
+compact-multiaxis composition; available directly when <code>mode</code> is passed
+explicitly.</p>
+</li>
+</ul>
+</div>
+<div class="sidebarblock">
+<div class="content">
+<div class="title">Cell Codec is string-oriented and writes no metadata</div>
+<div class="paragraph">
+<p>Cell Codec follows the string substrate
+(<code>ADR-VISIBLE-CELL-TYPING-STRING-SUBSTRATE</code>): position-based participating
+values must be non-empty strings or empty; numeric, boolean, or date values
+fail with an explicit diagnostic instead of silently changing type through
+the compact-cell roundtrip. Empty and missing values encode as the
+configured <code>absent_value</code> token and decode back to <code>""</code>. There is no
+escaping or quoting. The position grammar keeps encode unambiguously
+decodable with a narrow rule: <code>codec_intent.separator</code> must be <strong>exactly one
+Unicode character</strong>. Because the separator is a single character, and a real
+value containing the separator fails encoding while the absent marker must
+not contain it, an accepted encode joins tokens that contain no separator
+character, so no separator occurrence can be formed across a token boundary
+and decode recovers the same fields. (A multi-character separator does not
+have this property and is rejected.) A <code>split_tokens</code> historical token
+containing its delimiter also fails serialization. Duplicate physical column
+labels, duplicate configured columns, and output-column collisions fail
+before any output is produced. Codec intent lives entirely in explicit step
+configuration; no <code>_meta.cell_codecs</code> entries are produced (legacy entries
+in old sidecars or workbooks are ignored pass-through sediment).</p>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Position-based <code>codec_intent</code></strong> (same mapping for both steps)</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 28.5714%;">
+<col style="width: 14.2857%;">
+<col style="width: 57.1429%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Key</th>
+<th class="tableblock halign-left valign-top">Required</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>participating_columns</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">yes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ordered structured columns joined into (encode) or recreated from
+  (decode) the compact cell. Must be unique and must exist on the encode
+  source; on decode they must not already exist next to the compact column.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>compact_column</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">yes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Name of the compact cell column. Must not be a participating column and
+  must not collide with a passthrough column.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>separator</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">yes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Token separator inside the compact cell. Must be <strong>exactly one Unicode
+  character</strong> (no-escaping grammar). Values containing it fail encoding.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>absent_value</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">yes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Token representing an empty/missing attribute. Must differ from the
+  separator and must not contain it; a real value equal to it fails
+  encoding; decodes to <code>""</code>.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml">- step: encode_cell_values
+  source: profiles
+  output: profiles_compact
+  codec_intent:
+    participating_columns: [delivery, language, auth]
+    compact_column: profile
+    separator: "/"
+    absent_value: "-"</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong><code>decode_cell_values</code> historical code-row parameters</strong></p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
@@ -1082,6 +1286,12 @@ chain or independently for coded single-column cells.</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Name of the output frame with one row per decoded token.</p></td>
 </tr>
 <tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>mode</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">yes (for this contract)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>whole_cell_code</code> (the entire cell is one code; punctuation such as <code>-</code>
+  stays part of the code) or <code>split_tokens</code> (split on <code>delimiter</code>).</p></td>
+</tr>
+<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>value</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Column in <code>source</code> holding the encoded string. Default: <code>value</code>.</p></td>
@@ -1094,38 +1304,30 @@ chain or independently for coded single-column cells.</p>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>passthrough_columns</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Columns from <code>source</code> to copy unchanged into every output row.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Columns from <code>source</code> to copy unchanged into every output row.
+  Default: every non-<code>value</code> column.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>drop_empty</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">If <code>true</code>, omit rows for empty tokens. Default: <code>false</code>.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>mode</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Decoding mode. <code>delimited</code> (default) splits on <code>delimiter</code>; <code>positional</code>
-  treats each character as a code.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">If <code>true</code> (default), empty cells produce no output row; if <code>false</code>, an
+  empty cell produces one row with an empty token.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>delimiter</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Token separator for <code>delimited</code> mode. Default: <code>,</code>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Token separator for <code>split_tokens</code> mode. Default: <code>-</code>.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>allowed_codes</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>allowed_codes</code> / <code>allowed_tokens</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Explicit list of valid code strings. Validation fails on unknown codes.</p></td>
-</tr>
-<tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>allowed_tokens</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Alias for <code>allowed_codes</code>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Explicit list of valid code/token strings. Validation fails on unknown
+  values.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>allowed_from_legend</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Name of a legend frame from which to derive the allowed-code set.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Name of a legend block from which to derive the allowed-value set.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>normalize_case</code></p></td>
@@ -1153,14 +1355,55 @@ preserved (or <code>canonical_order</code> is set on the encode side).</p>
 <pre class="highlight"><code class="language-yaml" data-lang="yaml">- step: decode_cell_values
   source: assignments
   output: assignment_codes
+  mode: split_tokens
   value: codes
   code: code
   delimiter: ","
   passthrough_columns: [employee_id, project_id]</code></pre>
 </div>
 </div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-note" title="Note"></i>
+</td>
+<td class="content">
 <div class="paragraph">
-<p><strong><code>encode_cell_values</code> parameters</strong></p>
+<p><code>allowed_from_legend</code> refers to a legend block authored under
+<code><em>meta.legend_blocks</code>. You may author legend blocks as either a <strong>mapping</strong> keyed
+by block name or a <strong>list</strong> of block mappings — for a list, the block name is
+taken from <code>name</code>, then <code>id</code>, then a positional <code>legend</em>&lt;n&gt;</code> fallback:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml"># Mapping form (canonical)
+_meta:
+  legend_blocks:
+    status_codes:
+      entries:
+        - {token: A, label: Active}
+
+# List form (equivalent authoring sugar)
+_meta:
+  legend_blocks:
+    - name: status_codes
+      entries:
+        - {token: A, label: Active}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Both forms are accepted through the CLI/config path and are equivalent: the
+library normalizes list form to the canonical mapping automatically, and
+persisted output is always mapping form. Authoring the same block name twice
+(or a positional name that collides with an explicit one) is rejected.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p><strong><code>encode_cell_values</code> historical code-row parameters</strong></p>
 </div>
 <table class="tableblock frame-all grid-all stretch">
 <colgroup>
@@ -1188,8 +1431,14 @@ preserved (or <code>canonical_order</code> is set on the encode side).</p>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>group_by</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">yes</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Column name(s) to group rows before joining into a cell string.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">yes (for this contract)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Column name(s) to group rows before joining into a cell string. Must be
+  unique.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>mode</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">yes (for this contract)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Matches <code>decode_cell_values</code> mode (<code>whole_cell_code</code> / <code>split_tokens</code>).</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>code</code></p></td>
@@ -1202,14 +1451,10 @@ preserved (or <code>canonical_order</code> is set on the encode side).</p>
 <td class="tableblock halign-left valign-top"><p class="tableblock">Column name in <code>output</code> for the encoded string. Default: <code>value</code>.</p></td>
 </tr>
 <tr>
-<td class="tableblock halign-left valign-top"><p class="tableblock"><code>mode</code></p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Encoding mode. Matches <code>decode_cell_values</code> mode.</p></td>
-</tr>
-<tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>delimiter</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Separator. Default: <code>,</code>.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Separator for <code>split_tokens</code> mode. Default: <code>-</code>. A token containing the
+  delimiter fails serialization (the cell would be ambiguous to decode).</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>canonical_order</code></p></td>
@@ -1224,7 +1469,7 @@ preserved (or <code>canonical_order</code> is set on the encode side).</p>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>allowed_from_legend</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Legend frame name for allowed-code derivation.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Legend block name for allowed-value derivation.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>normalize_case</code></p></td>
@@ -1248,6 +1493,7 @@ preserved (or <code>canonical_order</code> is set on the encode side).</p>
 <pre class="highlight"><code class="language-yaml" data-lang="yaml">- step: encode_cell_values
   source: assignment_codes
   output: assignments
+  mode: split_tokens
   group_by: [employee_id, project_id]
   code: code
   value: codes
@@ -1265,6 +1511,30 @@ preserved (or <code>canonical_order</code> is set on the encode side).</p>
 <p>Compose <code>expand_xref</code> and <code>decode_cell_values</code> (or their inverses) to handle
 compact multi-axis matrices where each cell encodes multiple coded values.
 Parameters are a superset of the two constituent steps.</p>
+</div>
+<div class="paragraph">
+<p>The steps use explicit configuration. Their persisted
+<code>_meta.compact_multiaxis</code> entry is a diagnostics-only trace and is never read as
+configuration or inverse intent. XRef metadata created for the internal
+temporary relation is suppressed before the composite returns. Sparse Defaults
+is not part of this composite; configure <code>sparse_collapse</code> / <code>sparse_expand</code>
+separately when needed.</p>
+</div>
+<div class="paragraph">
+<p><code>expand_compact_multiaxis</code> accepts an optional <code>base_canonical_relation</code> for
+<strong>scoped recomposition</strong> of partial spreadsheet projections. It names a frame
+holding the <strong>canonical</strong> relation <code>[*row_keys, column_key, code (, group)]</code>
+(the pre-codec shape the composite produces on the forward path) — <strong>not</strong> the
+compact XRef-boundary shape that the <code>expand_xref</code> <code>base_relation</code> parameter
+takes. When supplied, the composite Cell-Codec-encodes that canonical base under
+the same effective codec configuration to the compact encoded relation, hands it
+to the wrapped <code>expand_xref</code> as its <code>base_relation</code>, and decodes the merged
+result. Rows outside the visible matrix scope are preserved; matrix-covered
+addresses replace (or, when cleared, delete) exactly the visible scope; no
+parallel merge logic exists in the composite. Omitting the parameter reproduces
+the pre-existing full-replacement behavior, so full-matrix pipelines are
+unaffected. See <code>functional_model/ch04_use_case_concepts/compact_multiaxis.adoc</code>
+and <code>FTR-COMPACT-MULTIAXIS-SCOPED-RECOMPOSITION-P4A</code>.</p>
 </div>
 <div class="paragraph">
 <p><em>Full parameter documentation planned.</em></p>
@@ -1314,6 +1584,401 @@ form (<code>unflatten_headers</code>).</p>
 </div>
 <div class="paragraph">
 <p><em>Full parameter documentation planned.</em></p>
+</div>
+<hr>
+</div>
+<div class="sect5">
+<h6 id="_project_axis_labels_restore_axis_keys"><code>project_axis_labels</code> / <code>restore_axis_keys</code></h6>
+<div class="paragraph">
+<p><strong>Category</strong>: primitive · <strong>Inverse</strong>: conditionally bijective</p>
+</div>
+<div class="paragraph">
+<p>Swap the <strong>axis-identity vocabulary</strong> of a relation&#8217;s axis-identity column
+(default <code>column_key</code>) between stable canonical keys and readable, flat
+one-level visible labels, composed <strong>around</strong> unchanged <code>contract_xref</code> /
+<code>expand_xref</code>. <code>project_axis_labels</code> (outbound) replaces each canonical key
+with its visible label so a following <code>contract_xref</code> renders readable matrix
+headers; <code>restore_axis_keys</code> (inbound) replaces each visible label produced by
+<code>expand_xref</code> with its canonical key. XRef still owns matrix/relation shape and
+cell addressing — only the axis-key vocabulary changes.</p>
+</div>
+<div class="paragraph">
+<p>The bijection is resolved on every run from a live <strong>source frame</strong> mapping a
+canonical key column to a single visible-label column, via the reviewed axis
+mapping resolver (<code>FTR-XREF-AXIS-MAPPINGS-P4A2</code> Slice 1). Nothing is persisted:
+if the source frame is absent, the step fails rather than trusting stale or
+visible text. This slice is flat one-level only; hierarchical (tuple) labels
+and grouped multi-row headers are later slices.</p>
+</div>
+<div class="paragraph">
+<p>Typical outbound placement: <code>project_axis_labels</code> → <code>contract_xref</code>. Typical
+inbound placement: <code>expand_xref</code> → <code>restore_axis_keys</code>.</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 28.5714%;">
+<col style="width: 14.2857%;">
+<col style="width: 57.1429%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Parameter</th>
+<th class="tableblock halign-left valign-top">Required</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>relation</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">yes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Name of the input relation frame. Outbound: canonical keys in its
+  axis-identity column. Inbound: visible labels in its axis-identity column
+  (typically the <code>expand_xref</code> output).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>output</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">yes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Name of the output relation frame to produce (a new frame; the input relation
+  is not mutated).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>source_frame</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">yes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Name of the live frame holding the key/label mapping. Read on every run and
+  never persisted.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>key_column</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">yes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Column in <code>source_frame</code> holding the canonical axis keys.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>label_column</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">yes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Column in <code>source_frame</code> holding the single visible label per key (flat
+  one-level).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>order_policy</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>source_row</code> (default) or <code>columns</code>, forwarded to the resolver. It affects
+  only the resolver&#8217;s internal member order, which value substitution does not
+  consume, so a projection roundtrip is identical under both policies.
+  <code>source_row</code> order is defined relative to the caller-supplied <code>source_frame</code>
+  row order; this step defines no serialized ordering contract.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>order_columns</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ordered column names used when <code>order_policy: columns</code>. Default: empty.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>column_key</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Field name in the relation that holds the axis identity (default: the literal
+  <code>column_key</code>; configure it to match the surrounding XRef steps).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>drop_source</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Assert that the projected output supersedes the input relation and mark the
+  relation for carrier-neutral final domain cleanup (<code>_meta.pipeline_cleanup</code>).
+  Requires a distinct <code>output</code>. Because this is a one-to-one column
+  substitution, no rows or columns are lost, so no value-loss guard applies.
+  Default: <code>false</code>.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><strong>Losslessness condition</strong>: an exact bijection when the inverse step resolves the
+<strong>same</strong> key/label mapping from the same live <code>source_frame</code> and configuration. A
+canonical key used by the relation but missing from the mapping source
+(outbound), or a visible label that does not resolve to a canonical key
+(inbound), fails fast before any output or <code>_meta</code> mutation is published.
+Duplicate source keys or duplicate visible labels fail the bijection. Existing
+flat XRef pipelines that already carry readable names as their axis key remain
+valid and unaffected; axis projection is opt-in.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml"># outbound: canonical keys -&gt; readable labels, then contract to a matrix
+- step: project_axis_labels
+  relation: story_cast_role
+  output: story_cast_role_named
+  source_frame: characters
+  key_column: char_id
+  label_column: char_name
+- step: contract_xref
+  relation: story_cast_role_named
+  output: story_cast_role_matrix
+  row_keys: [story_id]
+
+# inbound: expand the edited matrix, then restore canonical keys
+- step: expand_xref
+  matrix: story_cast_role_matrix
+  output: story_cast_role_named
+  row_keys: [story_id]
+- step: restore_axis_keys
+  relation: story_cast_role_named
+  output: story_cast_role
+  source_frame: characters
+  key_column: char_id
+  label_column: char_name</code></pre>
+</div>
+</div>
+</div>
+<div class="sect5">
+<h6 id="_contract_grouped_xref_expand_grouped_xref"><code>contract_grouped_xref</code> / <code>expand_grouped_xref</code></h6>
+<div class="paragraph">
+<p><strong>Category</strong>: composite · <strong>Inverse</strong>: conditionally bijective</p>
+</div>
+<div class="paragraph">
+<p>Project a canonical relation onto a <strong>grouped</strong> matrix whose dynamic column headers
+carry multi-level visible label <strong>tuples</strong> (for example <code>("Kredit",
+"Annuitätendarlehen")</code>), and restore it exactly. <code>contract_grouped_xref</code> runs
+unchanged <code>contract_xref</code> to build the flat canonical matrix, then attaches the
+visible label tuples; <code>expand_grouped_xref</code> restores the canonical headers and
+runs unchanged <code>expand_xref</code>. XRef still owns matrix/relation shape and cell
+addressing; the resolver (<code>FTR-XREF-AXIS-MAPPINGS-P4A2</code> Slice 1) owns the
+key/label bijection.</p>
+</div>
+<div class="paragraph">
+<p>Unlike the flat <code>project_axis_labels</code> / <code>restore_axis_keys</code> pair, which swaps a
+relation column between a canonical key and a <strong>single</strong> flat label, the grouped
+composites carry an arity-N visible <strong>tuple</strong> per dynamic column and keep the flat
+canonical matrix and its descriptor together.</p>
+</div>
+<div class="paragraph">
+<p><strong>Runtime representation.</strong> <code>contract_grouped_xref</code> publishes a <code>GroupedMatrix</code>
+under <code>output</code>: an internal domain carrier bundling the flat canonical-string
+matrix DataFrame with a <code>GroupedHeader</code> descriptor of the per-column visible
+tuples. Since GX-3b/GX-4 it is <strong>also</strong> a workbook carrier: a <code>GroupedMatrix</code>
+composes into an exact multi-row header grid for both XLSX and ODS, and GX-5
+makes that path reachable through the public configuration surface (see
+<em>Configured grouped workbook roundtrip</em> below).</p>
+</div>
+<div class="paragraph">
+<p><code>expand_grouped_xref</code> reads the <code>GroupedMatrix</code> from its <code>matrix</code> frame. It
+exposes no descriptor parameter. Raw <code>GroupedMatrix(&#8230;&#8203;)</code> construction is
+rejected; <code>grouped_matrix_from_canonical(frame, header, mapping=&#8230;&#8203;)</code> is the
+public construction seam and proves that the current canonical flat column
+schema projects to exactly the supplied descriptor. The inverse repeats that
+proof under its live mapping before restoration, so reordered dynamic columns,
+moved row keys, stale descriptors, <code>MultiIndex</code>, and altered headers fail rather
+than silently assigning values to different canonical keys. Matrix cell values
+remain intentionally editable; the pairing check concerns column identity and
+position, not value immutability.</p>
+</div>
+<div class="paragraph">
+<p>The axis mapping is resolved on every run from a live <strong>source frame</strong> mapping a
+canonical key column to N ordered visible-label columns. Nothing is persisted: if
+the source frame is absent, the step fails rather than trusting stale or visible
+text. <code>xref_config_id</code> is forwarded to the wrapped XRef step and selects its
+<code>_meta.xref_crosstable</code> identity; metadata ownership stays with XRef. In YAML,
+<code>name</code> is instead the generic pipeline step/log name and is never an XRef config
+ID. The grouped composites add no metadata root and persist no mapping,
+resolution, fingerprint, or header depth.</p>
+</div>
+<div class="paragraph">
+<p>Workbook readback (GX-3b/GX-4) reconstructs exact visible tuples, resolves the
+live mapping, restores a canonical flat string header sequence in physical order,
+and enters through <code>grouped_matrix_from_canonical</code> via the
+<code>reconstruct_grouped_matrix</code> step. GX-2 itself added no XLSX/ODS read/write; that
+carrier support arrived in GX-3b/GX-4 and became publicly configurable in GX-5.</p>
+</div>
+<div class="paragraph">
+<p>Typical forward placement: <code>contract_grouped_xref</code> alone (it wraps
+<code>contract_xref</code>). Typical inverse placement: <code>expand_grouped_xref</code> alone (it wraps
+<code>expand_xref</code>).</p>
+</div>
+<table class="tableblock frame-all grid-all stretch">
+<colgroup>
+<col style="width: 28.5714%;">
+<col style="width: 14.2857%;">
+<col style="width: 57.1429%;">
+</colgroup>
+<thead>
+<tr>
+<th class="tableblock halign-left valign-top">Parameter</th>
+<th class="tableblock halign-left valign-top">Required</th>
+<th class="tableblock halign-left valign-top">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>relation</code> / <code>matrix</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">yes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Forward <code>relation</code>: the input canonical relation frame. Inverse <code>matrix</code>: the
+  input frame holding a validated <code>GroupedMatrix</code> carrier (a bare DataFrame or
+  direct raw construction is rejected).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>output</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">yes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Name of the output frame to produce (a new frame; the input is not mutated).
+  Forward: the <code>GroupedMatrix</code>. Inverse: the canonical relation.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>row_keys</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">yes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Row-identity column(s), forwarded to XRef and used to classify row-key vs
+  dynamic columns. A string, list, tuple, or one-shot iterable is owned once as a
+  tuple; XRef retains element/duplicate/existence validation.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>source_frame</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">yes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Name of the live frame holding the key/label mapping. Read on every run and
+  never persisted.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>key_column</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">yes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Column in <code>source_frame</code> holding the canonical axis keys.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>label_columns</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">yes</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Ordered columns in <code>source_frame</code> holding the visible label per level (top to
+  leaf). Their count is the tuple depth.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>column_key</code> / <code>value</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Forwarded to XRef (defaults <code>column_key</code> / <code>value</code>).</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>column_keys</code> / <code>dense_axes</code> / <code>fill_value</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Forward only, forwarded to <code>contract_xref</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>value_columns</code> / <code>base_relation</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Inverse only, forwarded to <code>expand_xref</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>level_names</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Forward only. Descriptor level names (top to leaf); defaults to
+  <code>label_columns</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>order_policy</code> / <code>order_columns</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>source_row</code> (default) or <code>columns</code>, forwarded to the resolver. They affect
+  only resolver member order, which the header projection does not consume, so a
+  roundtrip is identical under both policies.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>drop_source</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Assert that the output supersedes the input and mark the input for
+  carrier-neutral final domain cleanup (<code>_meta.pipeline_cleanup</code>), only on full
+  success. Forward marks <code>relation</code>; inverse marks <code>matrix</code>. Requires a distinct
+  <code>output</code>. XRef&#8217;s own value-loss guards remain authoritative. Default: <code>false</code>.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>xref_config_id</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Exact optional XRef metadata identity. Direct Python and YAML use this same
+  spelling; it is forwarded to unchanged XRef. When omitted, XRef keeps its
+  relation/output fallback.</p></td>
+</tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>name</code> (YAML/config only)</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">no</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Generic pipeline step name used for logs. Consumed by the builder and not
+  passed to <code>contract_grouped_xref</code> / <code>expand_grouped_xref</code>; direct Python calls
+  have no grouped <code>name</code> parameter.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="paragraph">
+<p><strong>Losslessness condition</strong>: an exact bijection when the inverse resolves the <strong>same</strong>
+key/label mapping from the same live <code>source_frame</code> and configuration. A used
+canonical key missing from the source (forward), or a visible tuple that no longer
+resolves — for example after the source mapping changed between runs (inverse) —
+fails fast before any output or <code>_meta</code> mutation is published. Duplicate source
+keys or duplicate complete visible tuples fail the bijection. As with flat XRef, a
+<strong>sparse</strong> relation densifies through <code>contract_xref&#8217;s `fill_value</code>; use a dense
+relation (or XRef&#8217;s <code>drop_empty</code> on the flat path) when an exact relation
+roundtrip is required.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml"># forward: canonical relation -&gt; grouped matrix (visible label tuples on headers)
+- step: contract_grouped_xref
+  name: contract_loan_terms_for_log
+  xref_config_id: loan_product_axis
+  relation: loan_terms
+  output: loan_terms_matrix
+  row_keys: [account_id]
+  source_frame: products
+  key_column: product_id
+  label_columns: [category, product]
+
+# inverse: grouped matrix -&gt; canonical relation
+- step: expand_grouped_xref
+  name: expand_loan_terms_for_log
+  xref_config_id: loan_product_axis
+  matrix: loan_terms_matrix
+  output: loan_terms
+  row_keys: [account_id]
+  source_frame: products
+  key_column: product_id
+  label_columns: [category, product]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p><strong>Configured grouped workbook roundtrip (GX-5).</strong> The grouped carrier reaches a
+real XLSX/ODS file through the public configuration path. <code>configure_workbook_view</code>
+selects the <code>GroupedMatrix</code> frame and renames its physical sheet; the router-facing
+<code>save_xlsx</code> / <code>save_ods</code> savers preserve the carrier to the exact multi-row header
+grid. On readback, the opt-in <code>exact_header_depths</code> backend option (keyed by the
+<strong>physical visible sheet name</strong>, value = tuple depth) yields a <code>core.ExactTable</code>,
+<code>apply_workbook_view_sheet_mappings</code> re-keys that visible sheet to the logical
+frame, and <code>reconstruct_grouped_matrix</code> &#8594; <code>expand_grouped_xref</code> restores the
+canonical relation. A grouped sheet supports inclusion, order, and rename only:
+<code>helper_columns</code>, <code>editable_columns</code>, protection, and generic per-sheet options
+are rejected for a grouped sheet because grouped identity is the full visible
+tuple.</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml"># forward: build the grouped matrix, then declare the renamed visible sheet
+- step: contract_grouped_xref
+  relation: loan_terms
+  output: loan_terms_matrix
+  row_keys: [account_id]
+  source_frame: products
+  key_column: product_id
+  label_columns: [category, product]
+- step: configure_workbook_view
+  sheets:
+    - frame: loan_terms_matrix
+      sheet: Loan Terms Matrix        # renamed physical sheet
+# ... then orchestrate/save through the router saver (save_xlsx / save_ods)
+
+# reverse: load with exact_header_depths[physical sheet], then remap + expand
+#   input.options.extra.exact_header_depths: {"Loan Terms Matrix": 2}
+- step: apply_workbook_view_sheet_mappings
+  logical_frames: [loan_terms_matrix]
+- step: reconstruct_grouped_matrix
+  table: loan_terms_matrix
+  output: loan_terms_matrix_rebuilt
+  row_keys: [account_id]
+  source_frame: products
+  key_column: product_id
+  label_columns: [category, product]
+- step: expand_grouped_xref
+  matrix: loan_terms_matrix_rebuilt
+  output: loan_terms
+  row_keys: [account_id]
+  source_frame: products
+  key_column: product_id
+  label_columns: [category, product]</code></pre>
+</div>
 </div>
 </div>
 </div>
@@ -1406,7 +2071,21 @@ heuristic of <code>infer_fk_relations</code>; it is no longer interpreted by pri
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>add_lookup_helpers</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">primitive</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">projection-only</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Join a source frame to a lookup frame and materialize helper columns.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Join a source frame to a lookup frame and materialize helper columns. The
+  join key is symmetric by default (<code>key</code>/<code>keys</code>, one name present in both
+  frames); the opt-in <code>source_key</code>/<code>lookup_key</code> pair matches a source-side key
+  against a differently named lookup-side key. Only the source key appears in
+  the output. An explicit <code>source_key</code>/<code>lookup_key</code> pair is <strong>authoritative for
+  join-key selection</strong>: it ignores a configured helper-policy <code>key</code> while still
+  consuming the policy&#8217;s non-key settings (helper <code>fields</code>, <code>allowed</code> fields,
+  <code>order</code>, <code>missing</code> behaviour, and helper value mode). A symmetric inline key,
+  by contrast, is reconciled against the policy <code>key</code> and fails on conflict. A
+  requested helper or temporary sort field that equals the source key or the
+  lookup key is rejected with a clear error before projection, so the source
+  key is never overwritten and the lookup key never leaks; this holds even when
+  the explicit asymmetric key names are equal (sorting by that key stays
+  valid). Requesting the same helper column twice is rejected before
+  projection so output labels and provenance stay unambiguous.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>configure_lookup_helpers</code></p></td>
@@ -1416,6 +2095,27 @@ heuristic of <code>infer_fk_relations</code>; it is no longer interpreted by pri
 </tr>
 </tbody>
 </table>
+<div class="sect6">
+<h7 id="_helper_value_mode_formula_vs_values">Helper value mode: formula vs. values</h7>
+<div class="paragraph">
+<p><code>add_fk_helpers</code> and <code>add_lookup_helpers</code> accept a <code>helper_value_mode</code>
+setting. <code>values</code> (the default) materializes a plain copied value in each
+helper cell. <code>formula</code> instead writes a backend-neutral lookup-formula
+intent that the writer renders as a live spreadsheet formula, so the helper
+cell recalculates when the source FK value changes.</p>
+</div>
+<div class="paragraph">
+<p>On the ODS backend, formula mode requires a LibreOffice version with
+<code>XLOOKUP</code> support (verified against LibreOffice 25.2.3.2); the ODS writer
+serializes the lookup as LibreOffice&#8217;s extension-qualified
+<code>COM.MICROSOFT.XLOOKUP</code>, since plain <code>XLOOKUP</code> is not part of the standard
+OpenFormula vocabulary and LibreOffice does not recognize it as a valid
+name. <code>helper_value_mode: values</code> remains the broader-compatibility
+fallback for spreadsheet applications or versions without live-formula
+support; unlike formula mode it does not update the displayed helper value
+when the source FK is edited without a full re-export.</p>
+</div>
+</div>
 </div>
 <div class="sect5">
 <h6 id="_validation">Validation</h6>
@@ -1445,8 +2145,9 @@ heuristic of <code>infer_fk_relations</code>; it is no longer interpreted by pri
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>validate_references</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">primitive</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">validation-only</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Validate PK, uniqueness, FK, reference-tuple integrity, and
-  <code>no_helper_columns</code> assertion rules against frame data.</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Validate frame contracts (<code>required_columns</code>, <code>non_empty</code>), PK, uniqueness,
+  FK, reference-tuple integrity, and <code>no_helper_columns</code> assertion rules
+  against frame data.</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>validate_graph</code></p></td>
@@ -1463,6 +2164,28 @@ heuristic of <code>infer_fk_relations</code>; it is no longer interpreted by pri
 </tr>
 </tbody>
 </table>
+<div class="paragraph">
+<p><code>validate_references</code> frame-contract rules are consumer-neutral and, like the
+other rule types, honour <code>when</code> / <code>enabled_when</code> and the step&#8217;s <code>mode</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml">- step: validate_references
+  mode: fail
+  rules:
+    # The frame exists and has these columns; `exact: true` also rejects any
+    # other column. Column order is never part of the contract.
+    - {type: required_columns, frame: products, columns: [id, name, kind], exact: true}
+    # Every listed cell holds a value (not missing, null or the empty string);
+    # `trimmed: true` also rejects text with leading or trailing whitespace.
+    - {type: non_empty, frame: products, columns: [id, name, kind], trimmed: true}
+    - {type: primary_key, frame: products, columns: [id]}</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A missing frame or missing column is reported as a finding rather than raised,
+so every problem of a run is listed together.</p>
+</div>
 <div class="paragraph">
 <p><code>add_validations</code> supports explicit column targets and role-based targets.
 For dynamic workbook views, prefer an explicit <code>frame:</code> when using <code>roles:</code>.
@@ -1519,7 +2242,8 @@ columns that previously required consumer-side fan-out plugins such as
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>configure_workbook_view</code></p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">configuration</p></td>
 <td class="tableblock halign-left valign-top"><p class="tableblock">configuration-only</p></td>
-<td class="tableblock halign-left valign-top"><p class="tableblock">Declare which frames render as workbook sheets (names, order, lifecycle, options).</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Declare which prepared frames render as workbook sheets (names, order,
+  protection, helper/editable columns, and concrete renderer options).</p></td>
 </tr>
 <tr>
 <td class="tableblock halign-left valign-top"><p class="tableblock"><code>apply_workbook_view_sheet_mappings</code></p></td>
@@ -1537,8 +2261,320 @@ columns that previously required consumer-side fan-out plugins such as
   reimport. Pair with <code>validate_references</code> / <code>no_helper_columns</code> when the
   pipeline should assert that cleanup happened before writing canonical data.</p></td>
 </tr>
+<tr>
+<td class="tableblock halign-left valign-top"><p class="tableblock"><code>configure_pipeline_cleanup</code></p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">configuration</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">configuration-only</p></td>
+<td class="tableblock halign-left valign-top"><p class="tableblock">Declare the carrier-neutral final domain cleanup: either name frames to drop
+  (<code>drop_frames</code>) or name the final frame set to retain (<code>keep_frames</code>). The
+  orchestrator executes and consumes these commands implicitly before the
+  output adapter runs.</p></td>
+</tr>
 </tbody>
 </table>
+</div>
+<div class="sect5">
+<h6 id="_practical_workbook_view_roundtrip">Practical Workbook View Roundtrip</h6>
+<div class="paragraph">
+<p>Use <code>configure_workbook_view</code> after the transformations that prepare the
+logical frames intended for the workbook. Each <code>frame</code> is the configured
+logical frame name used by the pipeline. Each <code>sheet</code> is the distinct name
+shown to a spreadsheet user. The order of the <code>sheets</code> declarations is the
+physical order of the visible sheets.</p>
+</div>
+<div class="paragraph">
+<p>Without an explicit <code>workbook_view.sheets</code> list, every remaining logical
+frame is selected. With the list, it is authoritative. Workbook rendering
+does not infer inclusion or omission from frame names, canonicality, roles,
+provenance, or legacy lifecycle fields.</p>
+</div>
+<div class="paragraph">
+<p>For example, assume earlier forward steps have prepared <code>task_matrix_view</code>,
+<code>project_summary_view</code>, and <code>reference_codes</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml">pipeline:
+  # Earlier steps prepare the three logical frames used below.
+  - step: configure_workbook_view
+    sheets:
+      - frame: task_matrix_view
+        sheet: Tasks
+      - frame: project_summary_view
+        sheet: Summary
+      - frame: reference_codes
+        sheet: Reference Codes</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>This declaration produces the visible order <code>Tasks</code>, <code>Summary</code>, then
+<code>Reference Codes</code>. The order is intentional; it is not derived from lexical
+frame or sheet-name sorting.</p>
+</div>
+<div class="paragraph">
+<p>On reimport, apply the persisted sheet mappings before any downstream step
+that addresses a configured logical frame or, where applicable, reverses a
+logical projection back into its canonical source frame:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml">pipeline:
+  - step: apply_workbook_view_sheet_mappings
+
+  # Later steps may now address task_matrix_view and the other logical frames.
+  # A matching reverse transformation may subsequently update canonical data.</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The concrete relationships in this example are:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p><code>task_matrix_view</code> is the logical frame prepared for and referenced by the
+Workbook View;</p>
+</li>
+<li>
+<p><code>tasks</code> may be the source frame that a preceding transformation projected
+into <code>task_matrix_view</code> — that relationship lives in the transformation
+family&#8217;s own metadata (for example <code>xref_crosstable</code> intent), not in the
+Workbook View mapping;</p>
+</li>
+<li>
+<p><code>Tasks</code> is the visible sheet name; and</p>
+</li>
+<li>
+<p>its declaration as the first visible sheet gives it the first physical
+position in this configuration.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>These are practical relationships among frames, names, mappings, and order,
+not new identity types. Workbook View does not create the source frame or the
+logical projection; the relevant transformations do that before export and,
+where applicable, reverse it after reimport. The persisted mapping records
+only visible-sheet-to-logical-frame identity (<code>sheet</code> and <code>frame</code>).</p>
+</div>
+<div class="paragraph">
+<p>The persisted <code>_meta.workbook_view.sheet_mappings</code> entries are authoritative
+on reimport. <code>apply_workbook_view_sheet_mappings</code> uses them to re-key <code>Tasks</code>
+back to <code>task_matrix_view</code>. It does not infer the logical frame from a visible
+label or physical position. Reordering visible sheets therefore does not
+change their logical-frame associations while the persisted mapping remains
+intact.</p>
+</div>
+<div class="paragraph">
+<p>The mapping contract fails instead of guessing when the Workbook View mapping
+metadata is missing or malformed, when visible-sheet or logical-frame mappings
+are duplicated, when an actual visible sheet is undeclared, or when a declared
+visible sheet is missing from the workbook.</p>
+</div>
+<div class="paragraph">
+<p>For the conceptual boundary and its separation from domain transformations,
+see the
+<a href="https://github.com/StefanSchade/spreadsheet-handling/blob/main/docs/functional_model/ch05_problem_space_overview/04_workbook_view_boundary.adoc">Functional Model&#8217;s Workbook View Boundary</a>.</p>
+</div>
+<div class="sect6">
+<h7 id="_removing_a_read_only_display_helper_before_the_inverse">Removing a read-only display helper before the inverse</h7>
+<div class="paragraph">
+<p>When a Workbook View sheet carries a read-only display helper (for example a
+<code>title</code> column materialized before the row key by <code>add_lookup_helpers</code>), remove
+that helper on reimport <strong>by the visible sheet name, before</strong>
+<code>apply_workbook_view_sheet_mappings</code>. This ordering is a public sequencing
+contract, not an implementation detail:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>The durable helper identity after workbook readback comes from
+<code>_meta.sheets.&lt;visible-sheet&gt;.helper_columns</code>, written by
+<code>configure_workbook_view</code> and preserved across the persistence boundary.</p>
+</li>
+<li>
+<p>The transient <code>_meta.derived</code> lookup provenance that <code>add_lookup_helpers</code>
+writes in-run is <strong>not</strong> the carrier across persistence; it is pruned at the
+boundary, so inbound cleanup cannot rely on it.</p>
+</li>
+<li>
+<p><code>apply_workbook_view_sheet_mappings</code> re-keys frames from the visible sheet
+name to the logical frame name but does <strong>not</strong> re-key <code>_meta.sheets</code>. After
+mapping, <code>apply_derived_column_policy</code> addressed by the logical frame name no
+longer finds the visible-sheet-keyed declaration and leaves the helper in
+place, where the XRef inverse (<code>expand_xref</code> / <code>expand_compact_multiaxis</code>)
+would melt it into the relation. Logical-frame cleanup after mapping is
+therefore <strong>not</strong> equivalent under the current metadata-key contract.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The settled inbound sequence is:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml">pipeline:
+  - step: apply_derived_column_policy
+    source: Matrix View        # the visible sheet name
+    policy: drop
+
+  - step: validate_references   # recommended cleanup postcondition
+    mode: fail
+    rules:
+      - { type: no_helper_columns, frame: Matrix View }
+
+  - step: apply_workbook_view_sheet_mappings
+    logical_frames: [matrix_view]
+
+  - step: expand_xref           # or expand_compact_multiaxis
+    matrix: matrix_view
+    # ...</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Core cannot infer that a particular consumer column is a display helper from
+its name: the removal binds only to the declared
+<code>_meta.sheets.&lt;visible-sheet&gt;.helper_columns</code>. An edited read-only helper value
+is discarded under <code>policy: drop</code> (the drop is value-blind); it is never melted
+into the relation or written back to the authoritative lookup.</p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="title">The <code>no_helper_columns</code> guard is declaration-bound, not a declaration-completeness check</div>
+<div class="paragraph">
+<p><code>apply_derived_column_policy</code> and the <code>no_helper_columns</code> rule read the <strong>same</strong>
+durable declaration, <code>_meta.sheets.&lt;visible-sheet&gt;.helper_columns</code>. The guard is
+therefore a <strong>declaration-bound cleanup postcondition</strong>, not a
+<strong>declaration-completeness</strong> check.</p>
+</div>
+<div class="paragraph">
+<p>Declaration present (<code>helper_columns: [title]</code>):</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>cleanup removes <code>title</code>;</p>
+</li>
+<li>
+<p>the guard <strong>fails</strong> before cleanup while the declared helper is still present,
+and <strong>passes</strong> after successful cleanup;</p>
+</li>
+<li>
+<p>so the guard catches an omitted or ineffective cleanup that leaves a
+<strong>declared</strong> helper behind.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Declaration absent or mistyped:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Core does not infer <code>title</code> by name, so cleanup obtains an empty helper set and
+does nothing;</p>
+</li>
+<li>
+<p>the guard <strong>also</strong> obtains an empty helper set, reports no finding, and <strong>passes</strong>;</p>
+</li>
+<li>
+<p><code>title</code> therefore survives and the state is unsafe for the inverse, even though
+the guard passed.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>Because both steps bind to the same declaration, pairing the drop with
+<code>no_helper_columns</code> cannot detect a missing declaration. Verifying that each
+Workbook View sheet actually declares its display helper is a consumer-owned
+static/configuration check (for the Worldbuilding matrix sheets this is
+Slice-3 work): statically verify <code>helper_columns: [title]</code> for all five matrix
+sheets. The inbound <code>no_helper_columns</code> rule remains valuable as defense in
+depth against a <strong>declaration-present</strong> cleanup that was omitted or left the helper
+behind.</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect5">
+<h6 id="_final_domain_cleanup">Final Domain Cleanup</h6>
+<div class="paragraph">
+<p>Pipelines that project relational data into editable views often accumulate
+intermediate frames that should not remain part of the final logical result.
+Final domain cleanup removes such frames <strong>carrier-neutrally</strong>: the cleaned
+frame set is what every output adapter observes, whether the output is a
+JSON/YAML/XML directory or a spreadsheet workbook.</p>
+</div>
+<div class="paragraph">
+<p>Cleanup executes only explicit commands. It never infers removal from
+roles, canonicality, provenance, or rendering labels. Commands
+come from two producers:</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>a feature transformation whose own contract establishes that its source
+frame is fully superseded may contribute a drop command behind an explicit
+parameter — for example <code>contract_xref</code> / <code>expand_xref</code> with
+<code>drop_source: true</code>;</p>
+</li>
+<li>
+<p>the pipeline builder declares cleanup with <code>configure_pipeline_cleanup</code>,
+because generic steps cannot know whether their outputs are terminal data
+or disposable intermediates.</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>The builder step supports two mutually exclusive authoring modes:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml"># Drop mode: name the frames to remove.
+- step: configure_pipeline_cleanup
+  drop_frames: [story_place_relation, story_place_named]</code></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-yaml" data-lang="yaml"># Keep mode: name the final frame set; everything else is removed.
+- step: configure_pipeline_cleanup
+  keep_frames: [stories, characters, places]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>A declaration containing both modes fails. Drop declarations compose across
+invocations and with transformation-produced drop commands (duplicate
+identical drops are idempotent). At most one <code>keep_frames</code> declaration may
+exist per run; a frame that is both kept and dropped is a conflict and
+fails. There is no override precedence: compatible declarations compose,
+contradictory declarations fail.</p>
+</div>
+<div class="paragraph">
+<p>The cleanup itself is <strong>not</strong> a pipeline step. The orchestrator runs it
+implicitly after the configured steps and before the persistence boundary,
+then consumes the commands, so they never persist into <code>_meta</code> or roundtrip
+through a workbook. An <strong>explicit drop command</strong> targeting a frame explicitly
+mapped by <code>workbook_view</code> fails before anything is written. A keep-mode
+implied removal may coexist with a stale reimported mapping; structured output
+may retain the mapping, but a later spreadsheet render fails explicitly on
+the missing mapped frame before creating a workbook. Transformation intent
+metadata (for example <code>xref_crosstable</code> entries) that references a removed
+frame is preserved — inverse transformations need it to recreate the frame
+on reimport.</p>
+</div>
+<div class="paragraph">
+<p>Note: steps that write files mid-pipeline (<code>write_structured_yaml</code>,
+<code>write_key_value_resources</code>) emit their artifacts before final cleanup runs;
+those artifacts reflect the frame state at that earlier point.</p>
+</div>
 </div>
 <div class="sect5">
 <h6 id="_infrastructure_and_output">Infrastructure and Output</h6>
@@ -1632,8 +2668,8 @@ columns that previously required consumer-side fan-out plugins such as
 </div>
 <div id="footer">
 <div id="footer-text">
-Version v0.2.1<br>
-Last updated 2026-06-24 11:52:17 UTC
+Version v0.2.2<br>
+Last updated 2026-10-15 15:59:31 UTC
 </div>
 </div>
 </body>
